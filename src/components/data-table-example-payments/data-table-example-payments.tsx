@@ -81,7 +81,7 @@ export default async function DataTableExamplePayments() {
   const data = await getData()
 
   return (
-    <div className="px-8 py-10">
+    <div className="">
       <DataTable columns={columns} data={data} />
     </div>
   )
