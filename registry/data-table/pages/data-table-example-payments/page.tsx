@@ -2,8 +2,8 @@ import DataTableExamplePayments from "@/components/data-table-example-payments/d
 
 export default function Payments() {
   return (
-    <div className="px-3 py-10">
+    <main className="px-3 py-10 w-full max-w-3xl mx-auto">
       <DataTableExamplePayments />
-    </div>
+    </main>
   )
 }
