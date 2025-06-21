@@ -2,7 +2,7 @@ import DataTableExamplePayments from "@/components/data-table-example-payments/d
 
 export default function Payments() {
   return (
-    <div className="px-8 py-10">
+    <div className="px-3 py-10">
       <DataTableExamplePayments />
     </div>
   )

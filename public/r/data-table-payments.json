@@ -48,7 +48,7 @@
     },
     {
       "path": "registry/data-table/pages/data-table-example-payments/page.tsx",
-      "content": "import DataTableExamplePayments from \"@/components/data-table-example-payments/data-table-example-payments\";\n\nexport default function Payments() {\n  return (\n    <div className=\"px-8 py-10\">\n      <DataTableExamplePayments />\n    </div>\n  )\n}",
+      "content": "import DataTableExamplePayments from \"@/components/data-table-example-payments/data-table-example-payments\";\n\nexport default function Payments() {\n  return (\n    <div className=\"px-3 py-10\">\n      <DataTableExamplePayments />\n    </div>\n  )\n}",
       "type": "registry:page",
       "target": "app/data-table-example-payments/page.tsx"
     }
