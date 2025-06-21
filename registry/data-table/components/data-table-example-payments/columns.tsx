@@ -6,7 +6,7 @@ import { MoreHorizontal } from "lucide-react"
 import { ColumnDef } from "@tanstack/react-table"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DataTableColumnHeader } from "../data-table/data-table-column-header"
-import { Payment } from "./types"
+import { Payment } from "./data-table-example-payments"
 
 export const columns: ColumnDef<Payment>[] = [
   {

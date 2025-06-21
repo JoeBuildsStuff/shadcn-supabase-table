@@ -37,16 +37,12 @@
             "type": "registry:component"
           },
           {
-            "path": "registry/data-table-example-payments/data-table-example-payments.tsx",
+            "path": "registry/data-table/components/data-table-example-payments/data-table-example-payments.tsx",
             "type": "registry:component"
           },
           {
-            "path": "registry/data-table-example-payments/columns.tsx",
+            "path": "registry/data-table/components/data-table-example-payments/columns.tsx",
             "type": "registry:component"
-          },
-          {
-            "path": "registry/data-table-example-payments/types.ts",
-            "type": "registry:lib"
           }
         ],
         "categories": ["table", "data", "dashboard"]

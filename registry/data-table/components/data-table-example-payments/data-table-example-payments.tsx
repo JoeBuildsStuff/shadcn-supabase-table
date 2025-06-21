@@ -1,6 +1,14 @@
 import { columns } from "./columns"
 import { DataTable } from "@/components/data-table/data-table"
-import { Payment } from "./types"
+
+// This type is used to define the shape of our data.
+// You can use a Zod schema here if you want.
+export type Payment = {
+  id: string
+  amount: number
+  status: "pending" | "processing" | "success" | "failed"
+  email: string
+}
 
 async function getData(): Promise<Payment[]> {
   // Fetch data from your API here.
@@ -73,7 +81,7 @@ export default async function DataTableExamplePayments() {
   const data = await getData()
 
   return (
-    <div className="container px-8 py-10">
+    <div className="px-8 py-10">
       <DataTable columns={columns} data={data} />
     </div>
   )
