@@ -5,7 +5,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { MoreHorizontal } from "lucide-react"
 import { ColumnDef } from "@tanstack/react-table"
 import { Checkbox } from "@/components/ui/checkbox"
-import { DataTableColumnHeader } from "./data-table-column-header"
+import { DataTableColumnHeader } from "../data-table/data-table-column-header"
 import { Payment } from "./types"
 
 export const columns: ColumnDef<Payment>[] = [
@@ -62,7 +62,6 @@ export const columns: ColumnDef<Payment>[] = [
     id: "actions",
     cell: ({ row }) => {
       const payment = row.original
- 
       return (
         <div className="flex justify-end">
         <DropdownMenu>

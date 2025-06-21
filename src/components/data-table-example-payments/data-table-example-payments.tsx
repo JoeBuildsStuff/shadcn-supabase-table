@@ -1,5 +1,5 @@
 import { columns } from "./columns"
-import { DataTable } from "./data-table"
+import { DataTable } from "@/components/data-table/data-table"
 import { Payment } from "./types"
 
 async function getData(): Promise<Payment[]> {
@@ -69,7 +69,7 @@ async function getData(): Promise<Payment[]> {
   ]
 }
 
-export default async function DemoPage() {
+export default async function DataTableExamplePayments() {
   const data = await getData()
 
   return (

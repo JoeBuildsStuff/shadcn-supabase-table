@@ -1,0 +1,55 @@
+{
+    "$schema": "https://ui.shadcn.com/schema/registry.json",
+    "name": "shadcn-supabase-table",
+    "homepage": "https://shadcn-supabase-table.vercel.app",
+    "items": [
+      {
+        "name": "data-table-payments",
+        "type": "registry:block",
+        "title": "Payments Data Table",
+        "description": "A complete payments data table with sorting, filtering, pagination, and row selection. Includes column management and action menus.",
+        "dependencies": [
+          "@tanstack/react-table"
+        ],
+        "registryDependencies": [
+          "button",
+          "checkbox", 
+          "dropdown-menu",
+          "input",
+          "select",
+          "table"
+        ],
+        "files": [
+          {
+            "path": "registry/data-table/components/data-table/data-table-column-header.tsx",
+            "type": "registry:component"
+          },
+          {
+            "path": "registry/data-table/components/data-table/data-table-pagination.tsx",
+            "type": "registry:component"
+          },
+          {
+            "path": "registry/data-table/components/data-table/data-table-view-options.tsx",
+            "type": "registry:component"
+          },
+          {
+            "path": "registry/data-table/components/data-table/data-table.tsx",
+            "type": "registry:component"
+          },
+          {
+            "path": "registry/data-table-example-payments/data-table-example-payments.tsx",
+            "type": "registry:component"
+          },
+          {
+            "path": "registry/data-table-example-payments/columns.tsx",
+            "type": "registry:component"
+          },
+          {
+            "path": "registry/data-table-example-payments/types.ts",
+            "type": "registry:lib"
+          }
+        ],
+        "categories": ["table", "data", "dashboard"]
+      }
+    ]
+  }

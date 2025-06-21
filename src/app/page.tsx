@@ -1,10 +1,9 @@
-import Link from "next/link";
+import DataTableExamplePayments from "@/components/data-table-example-payments/data-table-example-payments";
 
 export default function Home() {
 return (
-  <main className="flex min-h-screen flex-col items-center p-24">
-
-<Link href="/payments">Payments</Link>
+  <main className="">
+    <DataTableExamplePayments />
   </main>
-);
+);  
 }
