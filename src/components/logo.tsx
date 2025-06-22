@@ -7,7 +7,7 @@ export default function Logo() {
     <div className="p-1.5 bg-foreground text-background dark:bg-secondary dark:text-foreground rounded-lg">
       <Table2 className="size-5" />
     </div>
-    <span>{metadata?.title as string}</span>
+    <span className="hidden sm:block">{metadata?.title as string}</span>
   </div>
   )
 }
