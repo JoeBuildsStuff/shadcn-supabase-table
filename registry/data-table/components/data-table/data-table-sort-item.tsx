@@ -62,7 +62,12 @@ export default function DataTableSortItem<TData>({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" className="flex-1">
-            <span className="flex-1 text-left capitalize">{column || "Column"}</span>
+            <span className="flex-1 text-left capitalize">
+              {column ? 
+                (columns.find(col => col.id === column)?.columnDef.meta?.label ?? column) 
+                : "Column"
+              }
+            </span>
             <ChevronsUpDown className="w-4 h-4" />
           </Button>
         </PopoverTrigger>
@@ -81,7 +86,7 @@ export default function DataTableSortItem<TData>({
                     }}
                     className="capitalize"
                   >
-                    {col.id}
+                    {col.columnDef.meta?.label ?? col.id}
                   </CommandItem>
                 ))}
               </CommandGroup>

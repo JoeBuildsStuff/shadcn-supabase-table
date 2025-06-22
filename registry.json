@@ -90,6 +90,94 @@
         }
       ],
       "categories": ["table", "data", "dashboard"]
+    },
+    {
+      "name": "data-table-contacts",
+      "type": "registry:block",
+      "title": "Contacts Data Table",
+      "description": "A complete contacts data table with sorting, filtering, pagination, and row selection. Includes column management and action menus.",
+      "dependencies": [
+        "@tanstack/react-table",
+        "@dnd-kit/core",
+        "@dnd-kit/modifiers",
+        "@dnd-kit/sortable",
+        "@dnd-kit/utilities",
+        "react-aria-components",
+        "nanoid"
+      ],
+      "registryDependencies": [
+        "button",
+        "checkbox", 
+        "dropdown-menu",
+        "input",
+        "select",
+        "table",
+        "calendar",
+        "popover",
+        "command",
+        "badge",
+        "separator"
+      ],
+      "files": [
+        {
+          "path": "registry/data-table/lib/data-table.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/data-table/components/ui/input-number.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/data-table/components/data-table/data-table-column-header.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/data-table/components/data-table/data-table-filter.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/data-table/components/data-table/data-table-filter-item.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/data-table/components/data-table/data-table-pagination.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/data-table/components/data-table/data-table-sort-item.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/data-table/components/data-table/data-table-sort.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/data-table/components/data-table/data-table-toolbar.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/data-table/components/data-table/data-table-view-options.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/data-table/components/data-table/data-table.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/data-table/components/data-table-example-contacts/data-table-example-contacts.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/data-table/components/data-table-example-contacts/columns.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/data-table/pages/data-table-example-contacts/page.tsx",
+          "type": "registry:page",
+          "target": "app/data-table-example-contacts/page.tsx"
+        }
+      ],
+      "categories": ["table", "data", "dashboard"]
     }
   ]
 }
