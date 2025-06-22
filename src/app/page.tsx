@@ -1,4 +1,4 @@
-import DataTableExamplePayments from "@/components/data-table-example-payments/data-table-example-payments";
+import DataTableExampleContactsPage from "@/components/data-table-example-contacts/data-table-example-contacts";
 
 export default async function DataTableExamplePaymentsPage({
   searchParams,
@@ -9,7 +9,7 @@ export default async function DataTableExamplePaymentsPage({
 
   return (
     <main className="px-3 py-10 w-full max-w-5xl mx-auto">
-      <DataTableExamplePayments searchParams={params} />
+      <DataTableExampleContactsPage searchParams={params} />
     </main>
   )
 }

@@ -38,12 +38,10 @@ export const columns: ColumnDef<Contacts>[] = [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
     cell: ({ row }) => {
       const displayName = row.getValue("display_name") as string
-      const isFavorite = row.getValue("is_favorite") as boolean
-      
+
       return (
         <div className="flex items-center gap-2">
-          <span className="font-medium">{displayName}</span>
-          {isFavorite && <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />}
+            <span className="font-medium">{displayName}</span>
         </div>
       )
     },
@@ -75,7 +73,12 @@ export const columns: ColumnDef<Contacts>[] = [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Phone" />,
     cell: ({ row }) => {
       const phone = row.getValue("primary_phone") as string
-      return <div className="text-muted-foreground">{phone}</div>
+      if (!phone) return <div className="text-muted-foreground">—</div>
+      
+      // Format phone number as (XXX) XXX-XXXX
+      const formatted = phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')
+      
+      return <div className="text-muted-foreground">{formatted}</div>
     },
     meta: {
       label: "Phone",
@@ -128,7 +131,7 @@ export const columns: ColumnDef<Contacts>[] = [
       return (
         <div className="flex flex-wrap gap-1">
           {tags.map((tag) => (
-            <Badge key={tag} variant="secondary" className="text-xs">
+            <Badge key={tag} variant="outline" className="text-xs">
               {tag}
             </Badge>
           ))}
@@ -217,10 +220,10 @@ export const columns: ColumnDef<Contacts>[] = [
       return (
         <div className="flex justify-center">
           {isFavorite ? (
-            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-          ) : (
-            <Star className="h-4 w-4 text-muted-foreground/30" />
-          )}
+                <Star className="size-5 fill-yellow-400 text-yellow-700 dark:text-yellow-400 dark:fill-yellow-900/30" strokeWidth={1} />
+            ) : (
+                <Star className="size-5 fill-gray-200 text-gray-400 dark:text-gray-400 dark:fill-gray-900/30" strokeWidth={1} />
+            )}
         </div>
       )
     },

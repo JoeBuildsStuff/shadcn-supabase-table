@@ -61,6 +61,9 @@ export function DataTable<TData, TValue>({
   const [pagination, setPagination] = React.useState<PaginationState>(
     initialState?.pagination ?? { pageIndex: 0, pageSize: 10 }
   )
+  const [columnOrder, setColumnOrder] = React.useState<string[]>(
+    initialState?.columnOrder ?? []
+  )
 
   // Sync state changes to URL
   React.useEffect(() => {
@@ -69,6 +72,7 @@ export function DataTable<TData, TValue>({
       sorting,
       columnFilters,
       columnVisibility,
+      columnOrder,
     }
 
     const newParams = serializeTableState(currentState)
@@ -81,7 +85,7 @@ export function DataTable<TData, TValue>({
     if (currentUrl !== newUrl) {
       router.replace(newUrl, { scroll: false })
     }
-  }, [pagination, sorting, columnFilters, columnVisibility, router, pathname, searchParams])
+  }, [pagination, sorting, columnFilters, columnVisibility, columnOrder, router, pathname, searchParams])
 
   const table = useReactTable({
     data,
@@ -95,6 +99,7 @@ export function DataTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     onPaginationChange: setPagination,
+    onColumnOrderChange: setColumnOrder,
     enableMultiSort: true,
     state: {
       sorting,
@@ -102,6 +107,7 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       rowSelection,
       pagination,
+      columnOrder,
     },
   })
 
