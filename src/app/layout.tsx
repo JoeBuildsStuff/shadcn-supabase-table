@@ -18,7 +18,45 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Shadcn / Supabase Table",
-  description: "Shadcn / Supabase Table",
+  description: "Tanstack Table with Shadcn / UI and Supabase",
+
+  // Open Graph meta tags for social media sharing
+  openGraph: {
+    title: "Shadcn / Supabase Table",
+    description: "Tanstack Table with Shadcn / UI and Supabase",
+    url: "https://shadcn-supabase-table.vercel.app/",
+    siteName: "Shadcn / Supabase Table",
+    images: [
+      {
+        url: "/og-image.png", // This should be a 1200x630px image in your public folder
+        width: 1550,
+        height: 1318,
+        alt: "Shadcn / Supabase Table",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  
+  // Twitter Card meta tags
+  twitter: {
+    card: "summary_large_image",
+    title: "Shadcn / Supabase Table",
+    description: "Tanstack Table with Shadcn / UI and Supabase",
+    images: ["/og-image.png"], // Same image as Open Graph
+    creator: "@joetaylor_86753", // Replace with your Twitter handle (optional)
+  },
+  
+  // Additional meta tags
+  robots: {
+    index: true,
+    follow: true,
+  },
+  
+  // Favicon and other icons
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
