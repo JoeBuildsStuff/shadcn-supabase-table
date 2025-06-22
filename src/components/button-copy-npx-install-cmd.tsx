@@ -4,12 +4,12 @@ import { Terminal, Check } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
 
-export function ButtonCopyNpxInstallCmd() {
+export function ButtonCopyNpxInstallCmd({ url }: { url: string }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText("npx shadcn@latest add https://shadcn-supabase-table.vercel.app/r/data-table-payments.json");
+      await navigator.clipboard.writeText(`npx shadcn@latest add ${url}`);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {

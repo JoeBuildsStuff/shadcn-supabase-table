@@ -9,12 +9,6 @@ export default async function DataTableExamplePaymentsPage({
 
   return (
     <main className="px-3 py-10 w-full max-w-5xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Data Table Example</h1>
-        <p className="text-muted-foreground">
-          A complete data table with sorting, filtering, pagination, and URL state management.
-        </p>
-      </div>
       <DataTableExamplePayments searchParams={params} />
     </main>
   )

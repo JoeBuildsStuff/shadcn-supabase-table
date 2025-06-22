@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
-export function OpenInV0Button({ url }: { url: string }) {
+export function ButtonOpenInV0({ url }: { url: string }) {
   return (
     <Button
       aria-label="Open in v0"
