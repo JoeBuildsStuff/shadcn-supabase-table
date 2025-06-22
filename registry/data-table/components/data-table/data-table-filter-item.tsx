@@ -437,7 +437,7 @@ export default function DataTableFilterItem<TData>({
             <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-32 p-0" align="start">
+        <PopoverContent className="w-[9rem] p-0" align="start">
           <Command>
             <CommandList>
               <CommandGroup>

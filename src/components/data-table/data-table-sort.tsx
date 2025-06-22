@@ -36,6 +36,7 @@ export default function DataTableSort<TData>({ table }: DataTableSortProps<TData
   const [sortItems, setSortItems] = useState<SortItem[]>([
     { id: "1", direction: "asc" }
   ]);
+  const [open, setOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -86,6 +87,7 @@ export default function DataTableSort<TData>({ table }: DataTableSortProps<TData
         desc: item.direction === "desc",
       }));
     table.setSorting(sorting);
+    setOpen(false); // Close the popover after applying sort
   };
 
   const columns = table
@@ -96,7 +98,7 @@ export default function DataTableSort<TData>({ table }: DataTableSortProps<TData
     );
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline">
           <ChevronsUpDown className="w-4 h-4" />
@@ -136,11 +138,11 @@ export default function DataTableSort<TData>({ table }: DataTableSortProps<TData
           <Separator />
 
           <div className="flex flex-row gap-3 items-center justify-between">
-            <Button variant="secondary" onClick={addSortItem} className="flex flex-row gap-2 items-center h-8">
+            <Button variant="secondary" onClick={addSortItem} className="flex flex-row items-center h-8">
               <Plus className="w-4 h-4" />
               Add
             </Button>
-            <Button variant="default" onClick={applySort} className="flex flex-row gap-2 items-center h-8">
+            <Button variant="default" onClick={applySort} className="flex flex-row items-center h-8">
               Apply
               <ChevronRight className="w-4 h-4" />
             </Button>

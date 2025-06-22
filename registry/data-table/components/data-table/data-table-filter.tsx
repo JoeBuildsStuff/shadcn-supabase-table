@@ -41,6 +41,7 @@ export default function DataTableFilter<TData>({ table }: { table: Table<TData> 
     },
   ]);
   const [logicalOperator, setLogicalOperator] = useState<"and" | "or">("and");
+  const [open, setOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -103,10 +104,11 @@ export default function DataTableFilter<TData>({ table }: { table: Table<TData> 
     });
     
     table.setColumnFilters(columnFilters);
+    setOpen(false); // Close the popover after applying filters
   };
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline">
           <ListFilter className="h-4 w-4" />
@@ -152,7 +154,7 @@ export default function DataTableFilter<TData>({ table }: { table: Table<TData> 
           <div className="flex flex-row items-center justify-between gap-3">
             <Button
               variant="secondary"
-              className="flex h-8 flex-row items-center gap-2"
+              className="flex flex-row items-center h-8"
               onClick={addFilter}
             >
               <Plus className="h-4 w-4" />
@@ -160,7 +162,7 @@ export default function DataTableFilter<TData>({ table }: { table: Table<TData> 
             </Button>
             <Button
               variant="default"
-              className="flex h-8 flex-row items-center gap-2"
+              className="flex flex-row items-center h-8"
               onClick={applyFilters}
             >
               Apply
