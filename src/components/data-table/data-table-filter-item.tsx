@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -20,33 +22,83 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { ChevronsUpDown, GripVertical, X } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Calendar } from "@/components/ui/calendar"
+import { CalendarDays, ChevronsUpDown, GripVertical, X } from "lucide-react"
 import { useState } from "react"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { Table } from "@tanstack/react-table"
-import { Filter } from "./data-table-filter"
+import { cn } from "@/lib/utils"
+import { dataTableConfig } from "@/config/data-table"
+import type { ExtendedColumnFilter, FilterVariant, FilterOperator } from "@/types/data-table"
 
-export default function DataTableFilterItem<TData>({
-  onRemove,
-  index,
-  logicalOperator,
-  onLogicalOperatorChange,
-  id,
-  table,
-  filter,
-  onUpdate,
-}: {
+// Format date utility
+function formatDate(
+  date: Date | string | number | undefined,
+  opts: Intl.DateTimeFormatOptions = {},
+) {
+  if (!date) return "";
+
+  try {
+    return new Intl.DateTimeFormat("en-US", {
+      month: opts.month ?? "long",
+      day: opts.day ?? "numeric", 
+      year: opts.year ?? "numeric",
+      ...opts,
+    }).format(new Date(date));
+  } catch {
+    return "";
+  }
+}
+
+// Get filter operators for a specific variant
+function getFilterOperators(filterVariant: FilterVariant) {
+  const operatorMap: Record<FilterVariant, { label: string; value: FilterOperator }[]> = {
+    text: dataTableConfig.textOperators,
+    number: dataTableConfig.numericOperators,
+    range: dataTableConfig.numericOperators,
+    date: dataTableConfig.dateOperators,
+    dateRange: dataTableConfig.dateOperators,
+    boolean: dataTableConfig.booleanOperators,
+    select: dataTableConfig.selectOperators,
+    multiSelect: dataTableConfig.multiSelectOperators,
+  };
+
+  return operatorMap[filterVariant] ?? dataTableConfig.textOperators;
+}
+
+// Get default filter operator for a variant
+function getDefaultFilterOperator(filterVariant: FilterVariant): FilterOperator {
+  const operators = getFilterOperators(filterVariant);
+  return operators[0]?.value ?? "iLike";
+}
+
+interface DataTableFilterItemProps<TData> {
+  table: Table<TData>
+  filter: ExtendedColumnFilter<TData>
+  onFilterChange: (filter: ExtendedColumnFilter<TData>) => void
   onRemove: () => void
   index: number
   logicalOperator: "and" | "or"
   onLogicalOperatorChange: (value: "and" | "or") => void
-  id: string
-  table: Table<TData>
-  filter: Filter
-  onUpdate: (newFilter: Partial<Filter>) => void
-}) {
-  const [open, setOpen] = useState(false)
+}
+
+export default function DataTableFilterItem<TData>({
+  table,
+  filter,
+  onFilterChange,
+  onRemove,
+  index,
+  logicalOperator,
+  onLogicalOperatorChange,
+}: DataTableFilterItemProps<TData>) {
+  const [columnOpen, setColumnOpen] = useState(false)
+  const [operatorOpen, setOperatorOpen] = useState(false)
+  const [valueOpen, setValueOpen] = useState(false)
+  const [calendarOpen, setCalendarOpen] = useState(false)
+
   const {
     attributes,
     listeners,
@@ -54,32 +106,12 @@ export default function DataTableFilterItem<TData>({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id })
+  } = useSortable({ id: filter.filterId })
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-  }
-
-  const renderLogicalOperator = () => {
-    if (index === 0) {
-      return "Where"
-    }
-    if (index === 1) {
-      return (
-        <Button
-          variant="secondary"
-          className="w-full capitalize"
-          onClick={() =>
-            onLogicalOperatorChange(logicalOperator === "and" ? "or" : "and")
-          }
-        >
-          {logicalOperator}
-        </Button>
-      )
-    }
-    return <div className="capitalize">{logicalOperator}</div>
   }
 
   const columns = table
@@ -90,6 +122,273 @@ export default function DataTableFilterItem<TData>({
         column.id !== "select" &&
         column.id !== "actions"
     )
+
+  const selectedColumn = columns.find((col) => col.id === filter.id)
+  const columnMeta = selectedColumn?.columnDef.meta
+  const filterVariant: FilterVariant = columnMeta?.variant ?? "text"
+  const operators = getFilterOperators(filterVariant)
+
+  const renderLogicalOperator = () => {
+    if (index === 0) {
+      return <div className="w-16 text-center text-sm font-medium text-muted-foreground">Where</div>
+    }
+    if (index === 1) {
+      return (
+        <Button
+          variant="secondary"
+          size="sm"
+          className="w-16 capitalize"
+          onClick={() =>
+            onLogicalOperatorChange(logicalOperator === "and" ? "or" : "and")
+          }
+        >
+          {logicalOperator}
+        </Button>
+      )
+    }
+    return <div className="w-16 text-center text-sm font-medium text-muted-foreground capitalize">{logicalOperator}</div>
+  }
+
+  const renderValueInput = () => {
+    const placeholder = columnMeta?.placeholder ?? "Enter value..."
+    
+    // Disable input for isEmpty and isNotEmpty operators
+    const isEmptyOperator = ["isEmpty", "isNotEmpty"].includes(filter.operator)
+    if (isEmptyOperator) {
+      return (
+        <div className="w-40 flex items-center justify-center text-sm text-muted-foreground border rounded px-3 py-2">
+          No value needed
+        </div>
+      )
+    }
+
+    switch (filterVariant) {
+      case "select": {
+        const options = columnMeta?.options ?? []
+        return (
+          <Popover open={valueOpen} onOpenChange={setValueOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-40 justify-start">
+                {filter.value ? 
+                  (options.find(option => option.value === filter.value)?.label ?? String(filter.value))
+                  : "Select value..."
+                }
+                <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-40 p-0" align="start">
+              <Command>
+                <CommandInput placeholder="Search..." />
+                <CommandList>
+                  <CommandEmpty>No options found.</CommandEmpty>
+                  <CommandGroup>
+                    {options.map((option) => (
+                      <CommandItem
+                        key={option.value}
+                        onSelect={() => {
+                          onFilterChange({ ...filter, value: option.value })
+                          setValueOpen(false)
+                        }}
+                      >
+                        {option.icon && <option.icon className="mr-2 h-4 w-4" />}
+                        {option.label}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        )
+      }
+
+      case "multiSelect": {
+        const options = columnMeta?.options ?? []
+        const selectedValues = Array.isArray(filter.value) ? filter.value : []
+        
+        return (
+          <Popover open={valueOpen} onOpenChange={setValueOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-40 justify-start">
+                {selectedValues.length > 0 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {selectedValues.slice(0, 2).map((value) => (
+                      <Badge key={String(value)} variant="secondary" className="text-xs">
+                        {(options.find(option => option.value === value)?.label ?? String(value))}
+                      </Badge>
+                    ))}
+                    {selectedValues.length > 2 && (
+                      <Badge variant="secondary" className="text-xs">
+                        +{selectedValues.length - 2}
+                      </Badge>
+                    )}
+                  </div>
+                ) : (
+                  "Select values..."
+                )}
+                <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-40 p-0" align="start">
+              <Command>
+                <CommandInput placeholder="Search..." />
+                <CommandList>
+                  <CommandEmpty>No options found.</CommandEmpty>
+                  <CommandGroup>
+                    {options.map((option) => (
+                      <CommandItem
+                        key={option.value}
+                        onSelect={() => {
+                          const newValues = selectedValues.includes(option.value)
+                            ? selectedValues.filter(v => v !== option.value)
+                            : [...selectedValues, option.value]
+                          onFilterChange({ ...filter, value: newValues })
+                        }}
+                      >
+                        <Checkbox
+                          checked={selectedValues.includes(option.value)}
+                          className="mr-2"
+                        />
+                        {option.icon && <option.icon className="mr-2 h-4 w-4" />}
+                        {option.label}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        )
+      }
+
+      case "boolean": {
+        return (
+          <Select
+            value={filter.value as string}
+            onValueChange={(value) => onFilterChange({ ...filter, value })}
+          >
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Select..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="true">True</SelectItem>
+              <SelectItem value="false">False</SelectItem>
+            </SelectContent>
+          </Select>
+        )
+      }
+
+      case "date": {
+        const date = filter.value ? new Date(filter.value as string) : undefined
+        return (
+          <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-40 justify-start text-left font-normal",
+                  !date && "text-muted-foreground"
+                )}
+              >
+                <CalendarDays className="mr-2 h-4 w-4" />
+                {date ? formatDate(date) : "Pick a date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={(selectedDate) => {
+                  onFilterChange({ 
+                    ...filter, 
+                    value: selectedDate ? selectedDate.toISOString() : "" 
+                  })
+                  setCalendarOpen(false)
+                }}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        )
+      }
+
+      case "number": {
+        const unit = columnMeta?.unit
+        
+        // Handle "is between" operator with two inputs
+        if (filter.operator === "isBetween") {
+          const values = Array.isArray(filter.value) ? filter.value : ["", ""]
+          return (
+            <div className="flex gap-2 w-80">
+              <div className="relative flex-1">
+                {unit && (
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                    {unit}
+                  </div>
+                )}
+                <Input
+                  type="number"
+                  placeholder="Min"
+                  value={values[0] || ""}
+                  onChange={(e) => {
+                    const newValues = [e.target.value, values[1] || ""]
+                    onFilterChange({ ...filter, value: newValues })
+                  }}
+                  className={cn(unit && "pl-8")}
+                />
+              </div>
+              <div className="flex items-center text-sm text-muted-foreground">and</div>
+              <div className="relative flex-1">
+                {unit && (
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                    {unit}
+                  </div>
+                )}
+                <Input
+                  type="number"
+                  placeholder="Max"
+                  value={values[1] || ""}
+                  onChange={(e) => {
+                    const newValues = [values[0] || "", e.target.value]
+                    onFilterChange({ ...filter, value: newValues })
+                  }}
+                  className={cn(unit && "pl-8")}
+                />
+              </div>
+            </div>
+          )
+        }
+        
+        return (
+          <div className="relative w-40">
+            {unit && (
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                {unit}
+              </div>
+            )}
+            <Input
+              type="number"
+              placeholder={placeholder}
+              value={filter.value as string}
+              onChange={(e) => onFilterChange({ ...filter, value: e.target.value })}
+              className={cn(unit && "pl-8")}
+            />
+          </div>
+        )
+      }
+
+      default: {
+        return (
+          <Input
+            placeholder={placeholder}
+            value={filter.value as string}
+            onChange={(e) => onFilterChange({ ...filter, value: e.target.value })}
+            className="w-40"
+          />
+        )
+      }
+    }
+  }
 
   return (
     <div
@@ -106,34 +405,41 @@ export default function DataTableFilterItem<TData>({
       >
         <GripVertical className="h-4 w-4" />
       </Button>
-      <div className="w-[4rem] text-center text-sm font-medium text-muted-foreground">
-        {renderLogicalOperator()}
-      </div>
-      <Popover open={open} onOpenChange={setOpen}>
+
+      {renderLogicalOperator()}
+
+      <Popover open={columnOpen} onOpenChange={setColumnOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="flex-1">
-            <span className="flex-1 text-left capitalize">
-              {filter.columnId || "Column"}
+          <Button variant="outline" className="w-32 justify-start">
+            <span className="truncate">
+              {(selectedColumn?.columnDef.meta?.label ?? filter.id) || "Column"}
             </span>
-            <ChevronsUpDown className="h-4 w-4" />
+            <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent align="start" className="p-0">
+        <PopoverContent className="w-32 p-0" align="start">
           <Command>
-            <CommandInput placeholder="Search column" />
+            <CommandInput placeholder="Search..." />
             <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandEmpty>No columns found.</CommandEmpty>
               <CommandGroup>
                 {columns.map((column) => (
                   <CommandItem
                     key={column.id}
                     onSelect={() => {
-                      onUpdate({ columnId: column.id })
-                      setOpen(false)
+                      const newVariant = column.columnDef.meta?.variant ?? "text"
+                      const newOperator = getDefaultFilterOperator(newVariant)
+                      onFilterChange({
+                        ...filter,
+                        id: column.id as Extract<keyof TData, string>,
+                        variant: newVariant,
+                        operator: newOperator,
+                        value: "",
+                      })
+                      setColumnOpen(false)
                     }}
-                    className="capitalize"
                   >
-                    {column.id}
+                    {(column.columnDef.meta?.label ?? column.id)}
                   </CommandItem>
                 ))}
               </CommandGroup>
@@ -142,29 +448,37 @@ export default function DataTableFilterItem<TData>({
         </PopoverContent>
       </Popover>
 
-      <Select
-        value={filter.operator}
-        onValueChange={(value) => onUpdate({ operator: value })}
-      >
-        <SelectTrigger className="w-[7.5rem]">
-          <SelectValue placeholder="Operator" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="contains">contains</SelectItem>
-          <SelectItem value="not_contains">does not contain</SelectItem>
-          <SelectItem value="is_empty">is</SelectItem>
-          <SelectItem value="is_not_empty">is not empty</SelectItem>
-          <SelectItem value="is_null">is empty</SelectItem>
-          <SelectItem value="is_not_null">is not empty</SelectItem>
-        </SelectContent>
-      </Select>
+      <Popover open={operatorOpen} onOpenChange={setOperatorOpen}>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="w-32 justify-start">
+            <span className="truncate">
+              {(operators.find(op => op.value === filter.operator)?.label ?? "Operator")}
+            </span>
+            <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-32 p-0" align="start">
+          <Command>
+            <CommandList>
+              <CommandGroup>
+                {operators.map((operator) => (
+                  <CommandItem
+                    key={operator.value}
+                    onSelect={() => {
+                      onFilterChange({ ...filter, operator: operator.value })
+                      setOperatorOpen(false)
+                    }}
+                  >
+                    {operator.label}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
 
-      <Input
-        placeholder="Value"
-        className="w-[10rem]"
-        value={filter.value}
-        onChange={(e) => onUpdate({ value: e.target.value })}
-      />
+      {renderValueInput()}
 
       <Button variant="ghost" size="icon" onClick={onRemove}>
         <X className="h-4 w-4" />

@@ -133,7 +133,6 @@ async function getData(): Promise<Payment[]> {
       status: "failed",
       email: "tina@example.com",
     },
-    
   ]
 }
 

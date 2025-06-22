@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
@@ -21,17 +23,22 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Table } from "@tanstack/react-table";
+import type { ExtendedColumnFilter } from "@/types/data-table";
 
-export interface Filter {
-  id: string;
-  columnId: string;
-  operator: string;
-  value: string;
+// Generate a random ID
+function generateId(length: number = 8): string {
+  return Math.random().toString(36).substring(2, 2 + length);
 }
 
 export default function DataTableFilter<TData>({ table }: { table: Table<TData> }) {
-  const [filters, setFilters] = useState<Filter[]>([
-    { id: Date.now().toString(), columnId: "", operator: "", value: "" },
+  const [filters, setFilters] = useState<ExtendedColumnFilter<TData>[]>([
+    {
+      filterId: generateId(),
+      id: "" as Extract<keyof TData, string>,
+      value: "",
+      operator: "iLike",
+      variant: "text",
+    },
   ]);
   const [logicalOperator, setLogicalOperator] = useState<"and" | "or">("and");
 
@@ -43,41 +50,58 @@ export default function DataTableFilter<TData>({ table }: { table: Table<TData> 
   );
 
   const addFilter = () => {
-    const newId = Date.now().toString();
-    setFilters([
-      ...filters,
-      { id: newId, columnId: "", operator: "", value: "" },
-    ]);
+    const newFilter: ExtendedColumnFilter<TData> = {
+      filterId: generateId(),
+      id: "" as Extract<keyof TData, string>,
+      value: "",
+      operator: "iLike",
+      variant: "text",
+    };
+    setFilters([...filters, newFilter]);
   };
 
-  const removeFilter = (id: string) => {
-    setFilters(filters.filter((f) => f.id !== id));
+  const removeFilter = (filterId: string) => {
+    setFilters(filters.filter((f) => f.filterId !== filterId));
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
       setFilters((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over.id);
+        const oldIndex = items.findIndex((item) => item.filterId === active.id);
+        const newIndex = items.findIndex((item) => item.filterId === over.id);
         return arrayMove(items, oldIndex, newIndex);
       });
     }
   };
 
-  const updateFilter = (id: string, newFilter: Partial<Filter>) => {
+  const updateFilter = (filterId: string, newFilter: ExtendedColumnFilter<TData>) => {
     setFilters(
-      filters.map((f) => (f.id === id ? { ...f, ...newFilter } : f))
+      filters.map((f) => (f.filterId === filterId ? newFilter : f))
     );
   };
 
   const applyFilters = () => {
-    const columnFilters = filters
-      .filter((f) => f.columnId && f.operator)
-      .map(({ columnId, value }) => ({
-        id: columnId,
-        value,
-      }));
+    // Get valid filters (those with column selected and either have value or are empty/not empty operators)
+    const validFilters = filters.filter((f) => 
+      f.id && f.operator && (
+        (f.value !== "" && f.value !== null && f.value !== undefined) || 
+        ["isEmpty", "isNotEmpty"].includes(f.operator)
+      )
+    );
+
+    // Convert to TanStack table format with custom filter functions
+    const columnFilters = validFilters.map((filter) => {
+      return {
+        id: filter.id as string,
+        value: {
+          operator: filter.operator,
+          value: filter.value,
+          variant: filter.variant
+        }
+      };
+    });
+    
     table.setColumnFilters(columnFilters);
   };
 
@@ -103,18 +127,17 @@ export default function DataTableFilter<TData>({ table }: { table: Table<TData> 
             onDragEnd={handleDragEnd}
           >
             <SortableContext
-              items={filters.map((item) => item.id)}
+              items={filters.map((item) => item.filterId)}
               strategy={verticalListSortingStrategy}
             >
               <div className="flex flex-col gap-3">
                 {filters.map((filter, index) => (
                   <DataTableFilterItem
-                    key={filter.id}
-                    id={filter.id}
+                    key={filter.filterId}
                     table={table}
                     filter={filter}
-                    onRemove={() => removeFilter(filter.id)}
-                    onUpdate={(newFilter: Partial<Filter>) => updateFilter(filter.id, newFilter)}
+                    onFilterChange={(newFilter) => updateFilter(filter.filterId, newFilter)}
+                    onRemove={() => removeFilter(filter.filterId)}
                     index={index}
                     logicalOperator={logicalOperator}
                     onLogicalOperatorChange={setLogicalOperator}
