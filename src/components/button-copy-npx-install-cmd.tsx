@@ -18,7 +18,7 @@ export function ButtonCopyNpxInstallCmd() {
   };
 
   return (
-    <Button variant="outline" className="h-7" onClick={handleCopy}>
+    <Button variant="outline" className="h-7" onClick={handleCopy} aria-label="Copy npx install command">
       {copied ? <Check className="size-4" /> : <Terminal className="size-4" />}
       npx shadcn@latest add...
     </Button>

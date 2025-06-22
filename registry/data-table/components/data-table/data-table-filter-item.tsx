@@ -31,8 +31,8 @@ import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { Table } from "@tanstack/react-table"
 import { cn } from "@/lib/utils"
-import { dataTableConfig } from "@/config/data-table"
-import type { ExtendedColumnFilter, FilterVariant, FilterOperator } from "@/types/data-table"
+import { dataTableConfig } from "@/lib/data-table"
+import type { ExtendedColumnFilter, FilterVariant, FilterOperator } from "@/lib/data-table"
 import { InputNumber } from "@/components/ui/input-number"
 
 // Format date utility

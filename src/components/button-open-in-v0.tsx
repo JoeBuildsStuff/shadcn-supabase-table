@@ -6,7 +6,7 @@ export function OpenInV0Button({ url }: { url: string }) {
     <Button
       aria-label="Open in v0"
       variant="ghost"
-      size="sm"
+      size="icon"
       asChild
     >
       <Link
