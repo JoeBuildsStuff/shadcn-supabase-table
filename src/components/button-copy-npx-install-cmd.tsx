@@ -1,0 +1,26 @@
+"use client"
+
+import { Terminal, Check } from "lucide-react";
+import { Button } from "./ui/button";
+import { useState } from "react";
+
+export function ButtonCopyNpxInstallCmd() {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText("npx shadcn@latest add https://shadcn-supabase-table.vercel.app/r/data-table-payments.json");
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
+  return (
+    <Button variant="outline" className="h-7" onClick={handleCopy}>
+      {copied ? <Check className="size-4" /> : <Terminal className="size-4" />}
+      npx shadcn@latest add...
+    </Button>
+  )
+}
