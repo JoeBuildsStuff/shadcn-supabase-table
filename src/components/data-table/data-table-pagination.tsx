@@ -55,7 +55,7 @@ export function DataTablePagination<TData>({
         </div>
         <div className="flex items-center space-x-2">
           <Button
-            variant="outline"
+            variant="secondary"
             size="icon"
             className="hidden size-8 lg:flex"
             onClick={() => table.setPageIndex(0)}
@@ -65,7 +65,7 @@ export function DataTablePagination<TData>({
             <ChevronsLeft />
           </Button>
           <Button
-            variant="outline"
+            variant="secondary"
             size="icon"
             className="size-8"
             onClick={() => table.previousPage()}
@@ -75,7 +75,7 @@ export function DataTablePagination<TData>({
             <ChevronLeft />
           </Button>
           <Button
-            variant="outline"
+            variant="secondary"
             size="icon"
             className="size-8"
             onClick={() => table.nextPage()}
@@ -85,7 +85,7 @@ export function DataTablePagination<TData>({
             <ChevronRight />
           </Button>
           <Button
-            variant="outline"
+            variant="secondary"
             size="icon"
             className="hidden size-8 lg:flex"
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}

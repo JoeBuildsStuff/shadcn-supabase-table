@@ -73,6 +73,66 @@ async function getData(): Promise<Payment[]> {
       status: "pending",
       email: "judy@example.com",
     },
+    {
+      id: "o1p2q3r4",
+      amount: 95,
+      status: "success",
+      email: "kevin@example.com",
+    },
+    {
+      id: "s5t6u7v8",
+      amount: 340,
+      status: "failed",
+      email: "lisa@example.com",
+    },
+    {
+      id: "w9x0y1z2",
+      amount: 175,
+      status: "processing",
+      email: "mike@example.com",
+    },
+    {
+      id: "a3b4c5d6",
+      amount: 280,
+      status: "success",
+      email: "nancy@example.com",
+    },
+    {
+      id: "e7f8g9h0",
+      amount: 45,
+      status: "pending",
+      email: "oscar@example.com",
+    },
+    {
+      id: "i1j2k3l4",
+      amount: 195,
+      status: "failed",
+      email: "penny@example.com",
+    },
+    {
+      id: "m5n6o7p8",
+      amount: 315,
+      status: "processing",
+      email: "quinn@example.com",
+    },
+    {
+      id: "q9r0s1t2",
+      amount: 85,
+      status: "success",
+      email: "rachel@example.com",
+    },
+    {
+      id: "u3v4w5x6",
+      amount: 265,
+      status: "pending",
+      email: "steve@example.com",
+    },
+    {
+      id: "y7z8a9b0",
+      amount: 155,
+      status: "failed",
+      email: "tina@example.com",
+    },
     
   ]
 }

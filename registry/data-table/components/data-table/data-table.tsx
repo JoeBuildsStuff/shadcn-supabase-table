@@ -14,8 +14,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 
-import { Input } from "@/components/ui/input"
-
 import {
   Table,
   TableBody,
@@ -24,8 +22,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { DataTableViewOptions } from "./data-table-view-options"
+
 import { DataTablePagination } from "./data-table-pagination"
+import DataTableToolbar from "./data-table-toolbar"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -53,6 +52,7 @@ export function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    enableMultiSort: true,
     state: {
       sorting,
       columnFilters,
@@ -63,17 +63,10 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-        <div className="flex items-center pb-2">
-            <Input
-                placeholder="Filter emails..."
-                value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-                onChange={(event) =>
-                table.getColumn("email")?.setFilterValue(event.target.value)
-                }
-                className="max-w-sm"
-            />
-            <DataTableViewOptions table={table} />
+        <div className="pb-2">
+            <DataTableToolbar table={table} />
         </div>
+
         <div className="rounded-md border">
             <Table>
                 <TableHeader>
@@ -118,6 +111,7 @@ export function DataTable<TData, TValue>({
                 </TableBody>
             </Table>
         </div>
+        
         <div className="pt-2">
             <DataTablePagination table={table} />
         </div>

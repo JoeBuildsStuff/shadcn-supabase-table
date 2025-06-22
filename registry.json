@@ -9,7 +9,11 @@
       "title": "Payments Data Table",
       "description": "A complete payments data table with sorting, filtering, pagination, and row selection. Includes column management and action menus.",
       "dependencies": [
-        "@tanstack/react-table"
+        "@tanstack/react-table",
+        "@dnd-kit/core",
+        "@dnd-kit/modifiers",
+        "@dnd-kit/sortable",
+        "@dnd-kit/utilities"
       ],
       "registryDependencies": [
         "button",
@@ -25,7 +29,23 @@
           "type": "registry:component"
         },
         {
+          "path": "registry/data-table/components/data-table/data-table-filter.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "registry/data-table/components/data-table/data-table-pagination.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/data-table/components/data-table/data-table-sort-item.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/data-table/components/data-table/data-table-sort.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/data-table/components/data-table/data-table-toolbar.tsx",
           "type": "registry:component"
         },
         {
