@@ -23,15 +23,28 @@
         "dropdown-menu",
         "input",
         "select",
-        "table"
+        "table",
+        "calendar",
+        "popover",
+        "command",
+        "badge",
+        "separator"
       ],
       "files": [
+        {
+          "path": "registry/data-table/components/ui/input-number.tsx",
+          "type": "registry:ui"
+        },
         {
           "path": "registry/data-table/components/data-table/data-table-column-header.tsx",
           "type": "registry:component"
         },
         {
           "path": "registry/data-table/components/data-table/data-table-filter.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/data-table/components/data-table/data-table-filter-item.tsx",
           "type": "registry:component"
         },
         {
