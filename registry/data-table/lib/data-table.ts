@@ -1,4 +1,5 @@
 import type { RowData } from "@tanstack/react-table";
+import type { ColumnFiltersState, PaginationState, SortingState, VisibilityState } from "@tanstack/react-table";
 
 export type DataTableConfig = typeof dataTableConfig;
 
@@ -54,6 +55,137 @@ export const dataTableConfig = {
   ] as const,
 }; 
 
+// URL Search Parameters Types
+export interface SearchParams {
+  [key: string]: string | string[] | undefined;
+}
+
+export interface DataTableSearchParams {
+  page?: string;
+  pageSize?: string;
+  sort?: string;
+  filters?: string;
+  visibility?: string;
+}
+
+export interface DataTableState {
+  pagination: PaginationState;
+  sorting: SortingState;
+  columnFilters: ColumnFiltersState;
+  columnVisibility: VisibilityState;
+}
+
+// Utility Functions for URL Search Parameters
+export function parseSearchParams(searchParams: SearchParams): Partial<DataTableState> {
+  const state: Partial<DataTableState> = {};
+
+  // Parse pagination
+  const page = searchParams.page ? parseInt(searchParams.page as string) - 1 : 0;
+  const pageSize = searchParams.pageSize ? parseInt(searchParams.pageSize as string) : 10;
+  state.pagination = {
+    pageIndex: Math.max(0, page),
+    pageSize: Math.max(1, pageSize),
+  };
+
+  // Parse sorting
+  if (searchParams.sort) {
+    try {
+      const sortString = searchParams.sort as string;
+      state.sorting = sortString.split(',').map(sort => {
+        const [id, desc] = sort.split(':');
+        return {
+          id,
+          desc: desc === 'desc'
+        };
+      });
+    } catch {
+      state.sorting = [];
+    }
+  } else {
+    state.sorting = [];
+  }
+
+  // Parse filters
+  if (searchParams.filters) {
+    try {
+      const filtersString = decodeURIComponent(searchParams.filters as string);
+      state.columnFilters = JSON.parse(filtersString);
+    } catch {
+      state.columnFilters = [];
+    }
+  } else {
+    state.columnFilters = [];
+  }
+
+  // Parse column visibility
+  if (searchParams.visibility) {
+    try {
+      const visibilityString = decodeURIComponent(searchParams.visibility as string);
+      state.columnVisibility = JSON.parse(visibilityString);
+    } catch {
+      state.columnVisibility = {};
+    }
+  } else {
+    state.columnVisibility = {};
+  }
+
+  return state;
+}
+
+export function serializeTableState(state: DataTableState): DataTableSearchParams {
+  const params: DataTableSearchParams = {};
+
+  // Serialize pagination
+  if (state.pagination.pageIndex > 0) {
+    params.page = (state.pagination.pageIndex + 1).toString();
+  }
+  if (state.pagination.pageSize !== 10) {
+    params.pageSize = state.pagination.pageSize.toString();
+  }
+
+  // Serialize sorting
+  if (state.sorting.length > 0) {
+    params.sort = state.sorting
+      .map(sort => `${sort.id}:${sort.desc ? 'desc' : 'asc'}`)
+      .join(',');
+  }
+
+  // Serialize filters
+  if (state.columnFilters.length > 0) {
+    params.filters = encodeURIComponent(JSON.stringify(state.columnFilters));
+  }
+
+  // Serialize column visibility (only if columns are hidden)
+  const hiddenColumns = Object.entries(state.columnVisibility).filter(([, visible]) => !visible);
+  if (hiddenColumns.length > 0) {
+    params.visibility = encodeURIComponent(JSON.stringify(state.columnVisibility));
+  }
+
+  return params;
+}
+
+export function updateSearchParams(
+  currentParams: URLSearchParams,
+  newParams: DataTableSearchParams
+): URLSearchParams {
+  const updatedParams = new URLSearchParams(currentParams);
+
+  // Remove existing data table params
+  updatedParams.delete('page');
+  updatedParams.delete('pageSize');
+  updatedParams.delete('sort');
+  updatedParams.delete('filters');
+  updatedParams.delete('visibility');
+
+  // Add new params
+  Object.entries(newParams).forEach(([key, value]) => {
+    if (value !== undefined && value !== '') {
+      updatedParams.set(key, value);
+    }
+  });
+
+  return updatedParams;
+}
 
 declare module "@tanstack/react-table" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

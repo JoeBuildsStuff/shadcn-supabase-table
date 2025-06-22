@@ -1,7 +1,7 @@
 import { ChevronRight, ChevronsUpDown, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DataTableSortItem from "./data-table-sort-item";
 import {
   DndContext,
@@ -33,9 +33,7 @@ interface DataTableSortProps<TData> {
 }
 
 export default function DataTableSort<TData>({ table }: DataTableSortProps<TData>) {
-  const [sortItems, setSortItems] = useState<SortItem[]>([
-    { id: "1", direction: "asc" }
-  ]);
+  const [sortItems, setSortItems] = useState<SortItem[]>([]);
   const [open, setOpen] = useState(false);
 
   const sensors = useSensors(
@@ -44,6 +42,22 @@ export default function DataTableSort<TData>({ table }: DataTableSortProps<TData
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  // Sync sortItems with table's sorting state
+  useEffect(() => {
+    const currentSorting = table.getState().sorting;
+    if (currentSorting.length > 0) {
+      const newSortItems: SortItem[] = currentSorting.map((sort, index) => ({
+        id: `${sort.id}-${index}`, // Create unique ID
+        column: sort.id,
+        direction: sort.desc ? "desc" : "asc",
+      }));
+      setSortItems(newSortItems);
+    } else {
+      // If no sorting is applied, show one empty sort item
+      setSortItems([{ id: "1", direction: "asc" }]);
+    }
+  }, [table.getState().sorting]);
 
   const addSortItem = () => {
     const newId = Date.now().toString(); // Use timestamp for unique IDs
@@ -97,6 +111,9 @@ export default function DataTableSort<TData>({ table }: DataTableSortProps<TData
         typeof column.accessorFn !== "undefined" && column.getCanSort()
     );
 
+  // Get the actual number of applied sorts from the table state
+  const appliedSortCount = table.getState().sorting.length;
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -104,7 +121,7 @@ export default function DataTableSort<TData>({ table }: DataTableSortProps<TData
           <ChevronsUpDown className="w-4 h-4" />
           <div>Sort</div>
           <Badge variant="secondary">
-            {sortItems.length}
+            {appliedSortCount}
           </Badge>
         </Button>
       </PopoverTrigger>

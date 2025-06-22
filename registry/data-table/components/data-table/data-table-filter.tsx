@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { ListFilter, Plus, ChevronRight } from "lucide-react";
 import DataTableFilterItem from "./data-table-filter-item";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   DndContext,
   closestCenter,
@@ -23,7 +23,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Table } from "@tanstack/react-table";
-import type { ExtendedColumnFilter } from "@/lib/data-table";
+import type { ExtendedColumnFilter, FilterVariant, FilterOperator } from "@/lib/data-table";
 
 // Generate a random ID
 function generateId(length: number = 8): string {
@@ -31,15 +31,7 @@ function generateId(length: number = 8): string {
 }
 
 export default function DataTableFilter<TData>({ table }: { table: Table<TData> }) {
-  const [filters, setFilters] = useState<ExtendedColumnFilter<TData>[]>([
-    {
-      filterId: generateId(),
-      id: "" as Extract<keyof TData, string>,
-      value: "",
-      operator: "iLike",
-      variant: "text",
-    },
-  ]);
+  const [filters, setFilters] = useState<ExtendedColumnFilter<TData>[]>([]);
   const [logicalOperator, setLogicalOperator] = useState<"and" | "or">("and");
   const [open, setOpen] = useState(false);
 
@@ -49,6 +41,44 @@ export default function DataTableFilter<TData>({ table }: { table: Table<TData> 
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  // Sync filters with table's column filters state
+  useEffect(() => {
+    const currentFilters = table.getState().columnFilters;
+    if (currentFilters.length > 0) {
+      const newFilters: ExtendedColumnFilter<TData>[] = currentFilters.map((filter, index) => {
+        // Get column metadata to determine variant
+        const column = table.getColumn(filter.id);
+        const columnMeta = column?.columnDef.meta;
+        const variant: FilterVariant = columnMeta?.variant ?? "text";
+        
+        // Extract filter details from the value object
+        const filterValue = filter.value as { operator?: string; value?: unknown; variant?: string } | undefined;
+        const operator = filterValue?.operator ?? "iLike";
+        const value = filterValue?.value ?? "";
+
+        return {
+          filterId: `${filter.id}-${index}`, // Create unique ID
+          id: filter.id as Extract<keyof TData, string>,
+          value: value as string | number | boolean | string[] | Date,
+          operator: operator as FilterOperator,
+          variant: variant,
+        };
+      });
+      setFilters(newFilters);
+    } else {
+      // If no filters are applied, show one empty filter item
+      setFilters([
+        {
+          filterId: generateId(),
+          id: "" as Extract<keyof TData, string>,
+          value: "",
+          operator: "iLike",
+          variant: "text",
+        },
+      ]);
+    }
+  }, [table.getState().columnFilters]);
 
   const addFilter = () => {
     const newFilter: ExtendedColumnFilter<TData> = {
@@ -107,6 +137,9 @@ export default function DataTableFilter<TData>({ table }: { table: Table<TData> 
     setOpen(false); // Close the popover after applying filters
   };
 
+  // Get the actual number of applied filters from the table state
+  const appliedFilterCount = table.getState().columnFilters.length;
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -114,7 +147,7 @@ export default function DataTableFilter<TData>({ table }: { table: Table<TData> 
           <ListFilter className="h-4 w-4" />
           <div>Filter</div>
           <Badge variant="secondary">
-            {filters.length}
+            {appliedFilterCount}
           </Badge>
         </Button>
       </PopoverTrigger>

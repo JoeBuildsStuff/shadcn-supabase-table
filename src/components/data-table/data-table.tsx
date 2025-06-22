@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -12,6 +13,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  PaginationState,
 } from "@tanstack/react-table"
 
 import {
@@ -25,21 +27,61 @@ import {
 
 import { DataTablePagination } from "./data-table-pagination"
 import DataTableToolbar from "./data-table-toolbar"
+import { 
+  DataTableState, 
+  serializeTableState, 
+  updateSearchParams 
+} from "@/lib/data-table"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  initialState?: Partial<DataTableState>
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  initialState,
 }: DataTableProps<TData, TValue>) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [sorting, setSorting] = React.useState<SortingState>(
+    initialState?.sorting ?? []
+  )
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    initialState?.columnFilters ?? []
+  )
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(
+    initialState?.columnVisibility ?? {}
+  )
   const [rowSelection, setRowSelection] = React.useState({})
+  const [pagination, setPagination] = React.useState<PaginationState>(
+    initialState?.pagination ?? { pageIndex: 0, pageSize: 10 }
+  )
+
+  // Sync state changes to URL
+  React.useEffect(() => {
+    const currentState: DataTableState = {
+      pagination,
+      sorting,
+      columnFilters,
+      columnVisibility,
+    }
+
+    const newParams = serializeTableState(currentState)
+    const updatedSearchParams = updateSearchParams(searchParams, newParams)
+    
+    // Only update URL if parameters actually changed
+    const currentUrl = `${pathname}?${searchParams.toString()}`
+    const newUrl = `${pathname}?${updatedSearchParams.toString()}`
+    
+    if (currentUrl !== newUrl) {
+      router.replace(newUrl, { scroll: false })
+    }
+  }, [pagination, sorting, columnFilters, columnVisibility, router, pathname, searchParams])
 
   const table = useReactTable({
     data,
@@ -52,12 +94,14 @@ export function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    onPaginationChange: setPagination,
     enableMultiSort: true,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
+      pagination,
     },
   })
 

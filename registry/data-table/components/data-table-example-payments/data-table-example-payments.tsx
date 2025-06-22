@@ -1,5 +1,6 @@
 import { columns } from "./columns"
 import { DataTable } from "@/components/data-table/data-table"
+import { parseSearchParams, SearchParams } from "@/lib/data-table"
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -136,12 +137,23 @@ async function getData(): Promise<Payment[]> {
   ]
 }
 
-export default async function DataTableExamplePayments() {
+interface DataTableExamplePaymentsProps {
+  searchParams?: SearchParams
+}
+
+export default async function DataTableExamplePayments({ 
+  searchParams = {} 
+}: DataTableExamplePaymentsProps) {
   const data = await getData()
+  const initialState = parseSearchParams(searchParams)
 
   return (
     <div className="">
-      <DataTable columns={columns} data={data} />
+      <DataTable 
+        columns={columns} 
+        data={data} 
+        initialState={initialState}
+      />
     </div>
   )
 }
