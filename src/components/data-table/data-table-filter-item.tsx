@@ -33,6 +33,7 @@ import { Table } from "@tanstack/react-table"
 import { cn } from "@/lib/utils"
 import { dataTableConfig } from "@/config/data-table"
 import type { ExtendedColumnFilter, FilterVariant, FilterOperator } from "@/types/data-table"
+import { InputNumber } from "@/components/ui/input-number"
 
 // Format date utility
 function formatDate(
@@ -320,60 +321,39 @@ export default function DataTableFilterItem<TData>({
           const values = Array.isArray(filter.value) ? filter.value : ["", ""]
           return (
             <div className="flex gap-2 w-80">
-              <div className="relative flex-1">
-                {unit && (
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                    {unit}
-                  </div>
-                )}
-                <Input
-                  type="number"
-                  placeholder="Min"
-                  value={values[0] || ""}
-                  onChange={(e) => {
-                    const newValues = [e.target.value, values[1] || ""]
-                    onFilterChange({ ...filter, value: newValues })
-                  }}
-                  className={cn(unit && "pl-8")}
-                />
-              </div>
+              <InputNumber
+                value={values[0] || ""}
+                onChange={(value) => {
+                  const newValues = [String(value || ""), values[1] || ""]
+                  onFilterChange({ ...filter, value: newValues })
+                }}
+                placeholder="Min"
+                unit={unit}
+                className="flex-1"
+              />
               <div className="flex items-center text-sm text-muted-foreground">and</div>
-              <div className="relative flex-1">
-                {unit && (
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                    {unit}
-                  </div>
-                )}
-                <Input
-                  type="number"
-                  placeholder="Max"
-                  value={values[1] || ""}
-                  onChange={(e) => {
-                    const newValues = [values[0] || "", e.target.value]
-                    onFilterChange({ ...filter, value: newValues })
-                  }}
-                  className={cn(unit && "pl-8")}
-                />
-              </div>
+              <InputNumber
+                value={values[1] || ""}
+                onChange={(value) => {
+                  const newValues = [values[0] || "", String(value || "")]
+                  onFilterChange({ ...filter, value: newValues })
+                }}
+                placeholder="Max"
+                unit={unit}
+                className="flex-1"
+              />
             </div>
           )
         }
         
         return (
-          <div className="relative w-40">
-            {unit && (
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                {unit}
-              </div>
-            )}
-            <Input
-              type="number"
-              placeholder={placeholder}
-              value={filter.value as string}
-              onChange={(e) => onFilterChange({ ...filter, value: e.target.value })}
-              className={cn(unit && "pl-8")}
-            />
-          </div>
+          <InputNumber
+            value={filter.value as string}
+            onChange={(value) => onFilterChange({ ...filter, value: String(value || "") })}
+            placeholder={placeholder}
+            unit={unit}
+            className="w-40"
+          />
         )
       }
 
