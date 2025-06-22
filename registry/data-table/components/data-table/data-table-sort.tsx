@@ -20,6 +20,7 @@ import {
 } from '@dnd-kit/sortable';
 import { SortingState, Table } from "@tanstack/react-table";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 
 interface SortItem {
   id: string;
@@ -99,6 +100,10 @@ export default function DataTableSort<TData>({ table }: DataTableSortProps<TData
       <PopoverTrigger asChild>
         <Button variant="outline">
           <ChevronsUpDown className="w-4 h-4" />
+          <div>Sort</div>
+          <Badge variant="secondary">
+            {sortItems.length}
+          </Badge>
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-sm p-3">

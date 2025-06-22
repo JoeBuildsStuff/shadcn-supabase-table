@@ -24,19 +24,27 @@ import { ChevronsUpDown, GripVertical, X } from "lucide-react"
 import { useState } from "react"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
+import { Table } from "@tanstack/react-table"
+import { Filter } from "./data-table-filter"
 
-export default function DataTableFilterItem({
+export default function DataTableFilterItem<TData>({
   onRemove,
   index,
   logicalOperator,
   onLogicalOperatorChange,
   id,
+  table,
+  filter,
+  onUpdate,
 }: {
   onRemove: () => void
   index: number
   logicalOperator: "and" | "or"
   onLogicalOperatorChange: (value: "and" | "or") => void
   id: string
+  table: Table<TData>
+  filter: Filter
+  onUpdate: (newFilter: Partial<Filter>) => void
 }) {
   const [open, setOpen] = useState(false)
   const {
@@ -74,6 +82,15 @@ export default function DataTableFilterItem({
     return <div className="capitalize">{logicalOperator}</div>
   }
 
+  const columns = table
+    .getAllColumns()
+    .filter(
+      (column) =>
+        column.getCanFilter() &&
+        column.id !== "select" &&
+        column.id !== "actions"
+    )
+
   return (
     <div
       ref={setNodeRef}
@@ -95,7 +112,9 @@ export default function DataTableFilterItem({
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" className="flex-1">
-            <span className="flex-1 text-left capitalize">Column</span>
+            <span className="flex-1 text-left capitalize">
+              {filter.columnId || "Column"}
+            </span>
             <ChevronsUpDown className="h-4 w-4" />
           </Button>
         </PopoverTrigger>
@@ -105,40 +124,28 @@ export default function DataTableFilterItem({
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
-                <CommandItem
-                  key="status"
-                  onSelect={() => {
-                    // Handle status selection
-                  }}
-                  className="capitalize"
-                >
-                  status
-                </CommandItem>
-                <CommandItem
-                  key="email"
-                  onSelect={() => {
-                    // Handle email selection
-                  }}
-                  className="capitalize"
-                >
-                  email
-                </CommandItem>
-                <CommandItem
-                  key="amount"
-                  onSelect={() => {
-                    // Handle amount selection
-                  }}
-                  className="capitalize"
-                >
-                  amount
-                </CommandItem>
+                {columns.map((column) => (
+                  <CommandItem
+                    key={column.id}
+                    onSelect={() => {
+                      onUpdate({ columnId: column.id })
+                      setOpen(false)
+                    }}
+                    className="capitalize"
+                  >
+                    {column.id}
+                  </CommandItem>
+                ))}
               </CommandGroup>
             </CommandList>
           </Command>
         </PopoverContent>
       </Popover>
 
-      <Select>
+      <Select
+        value={filter.operator}
+        onValueChange={(value) => onUpdate({ operator: value })}
+      >
         <SelectTrigger className="w-[7.5rem]">
           <SelectValue placeholder="Operator" />
         </SelectTrigger>
@@ -152,7 +159,12 @@ export default function DataTableFilterItem({
         </SelectContent>
       </Select>
 
-      <Input placeholder="Value" className="w-[10rem]" />
+      <Input
+        placeholder="Value"
+        className="w-[10rem]"
+        value={filter.value}
+        onChange={(e) => onUpdate({ value: e.target.value })}
+      />
 
       <Button variant="ghost" size="icon" onClick={onRemove}>
         <X className="h-4 w-4" />
