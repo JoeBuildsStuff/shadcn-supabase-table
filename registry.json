@@ -32,6 +32,10 @@
       ],
       "files": [
         {
+          "path": "registry/data-table/lib/data-table.ts",
+          "type": "registry:lib"
+        },
+        {
           "path": "registry/data-table/components/ui/input-number.tsx",
           "type": "registry:ui"
         },
