@@ -1,5 +1,5 @@
 import type { RowData } from "@tanstack/react-table";
-import type { ColumnFiltersState, PaginationState, SortingState, VisibilityState } from "@tanstack/react-table";
+import type { ColumnFiltersState, PaginationState, SortingState, VisibilityState, ColumnOrderState } from "@tanstack/react-table";
 
 export type DataTableConfig = typeof dataTableConfig;
 
@@ -66,7 +66,7 @@ export interface DataTableSearchParams {
   sort?: string;
   filters?: string;
   visibility?: string;
-  columnOrder?: string;
+  order?: string;
 }
 
 export interface DataTableState {
@@ -74,7 +74,7 @@ export interface DataTableState {
   sorting: SortingState;
   columnFilters: ColumnFiltersState;
   columnVisibility: VisibilityState;
-  columnOrder: string[];
+  columnOrder: ColumnOrderState;
 }
 
 // Utility Functions for URL Search Parameters
@@ -132,9 +132,9 @@ export function parseSearchParams(searchParams: SearchParams): Partial<DataTable
   }
 
   // Parse column order
-  if (searchParams.columnOrder) {
+  if (searchParams.order) {
     try {
-      state.columnOrder = (searchParams.columnOrder as string).split(',');
+      state.columnOrder = (searchParams.order as string).split(",");
     } catch {
       state.columnOrder = [];
     }
@@ -175,8 +175,8 @@ export function serializeTableState(state: DataTableState): DataTableSearchParam
   }
 
   // Serialize column order
-  if (state.columnOrder.length > 0) {
-    params.columnOrder = state.columnOrder.join(',');
+  if (state.columnOrder?.length > 0) {
+    params.order = state.columnOrder.join(",");
   }
 
   return params;
@@ -194,7 +194,7 @@ export function updateSearchParams(
   updatedParams.delete('sort');
   updatedParams.delete('filters');
   updatedParams.delete('visibility');
-  updatedParams.delete('columnOrder');
+  updatedParams.delete('order');
 
   // Add new params
   Object.entries(newParams).forEach(([key, value]) => {
