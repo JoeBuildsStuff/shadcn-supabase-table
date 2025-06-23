@@ -95,7 +95,7 @@
       "name": "data-table-contacts",
       "type": "registry:block",
       "title": "Contacts Data Table",
-      "description": "A complete contacts data table with sorting, filtering, pagination, and row selection. Includes column management and action menus.",
+      "description": "A complete contacts data table with sorting, filtering, pagination, and row selection. Includes column management and action menus. Integrated with Supabase for data fetching.",
       "dependencies": [
         "@tanstack/react-table",
         "@dnd-kit/core",
@@ -103,7 +103,9 @@
         "@dnd-kit/sortable",
         "@dnd-kit/utilities",
         "react-aria-components",
-        "nanoid"
+        "nanoid",
+        "@supabase/ssr",
+        "@supabase/supabase-js"
       ],
       "registryDependencies": [
         "button",
@@ -121,6 +123,18 @@
       "files": [
         {
           "path": "registry/data-table/lib/data-table.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/data-table/lib/supabase/client.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/data-table/lib/supabase/server.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/data-table/lib/supabase/middleware.ts",
           "type": "registry:lib"
         },
         {

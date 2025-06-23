@@ -1,0 +1,273 @@
+---
+description: When the user has updates or questions for the shadcn registry
+globs: 
+alwaysApply: false
+---
+# Cursor Rules: Shadcn Registry System
+
+## Overview
+
+This project implements a custom shadcn/ui component registry that allows distribution of reusable components, hooks, and pages to any React project. The registry follows the official shadcn registry specification and is compatible with the `shadcn` CLI and "Open in v0".
+
+## Registry Structure
+
+### Core Files
+
+- `registry.json` - Main registry configuration file
+- `registry/` - Contains all registry components organized by style/name
+- `src/` - Working source code (mirrors registry structure)
+- `package.json` - Includes registry build script
+
+### Registry Schema
+
+```json
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "your-registry-name",
+  "homepage": "https://your-registry-url.com",
+  "items": [...]
+}
+```
+
+## File Organization Patterns
+
+### Directory Structure
+```
+registry/
+└── [STYLE]/                    # e.g., "data-table"
+    ├── components/
+    │   ├── ui/                  # UI primitives (registry:ui)
+    │   ├── [COMPONENT_NAME]/    # Complex components
+    │   └── data-table/          # Component families
+    ├── hooks/                   # Custom hooks (registry:hook)
+    ├── lib/                     # Utilities (registry:lib)
+    └── pages/                   # Pages/routes (registry:page)
+
+src/                             # Working development files
+└── [mirrors registry structure]
+```
+
+### File Types
+
+- `registry:component` - Standard components
+- `registry:ui` - UI primitives and single-file components
+- `registry:block` - Complex components with multiple files
+- `registry:page` - Pages or file-based routes
+- `registry:hook` - Custom React hooks
+- `registry:lib` - Utilities and helper functions
+- `registry:file` - Miscellaneous files (configs, etc.)
+
+## Component Definition Pattern
+
+### Registry Item Structure
+```json
+{
+  "name": "component-name",
+  "type": "registry:block",
+  "title": "Human Readable Title",
+  "description": "Component description",
+  "dependencies": ["@tanstack/react-table", "lucide-react"],
+  "registryDependencies": ["button", "input", "select"],
+  "files": [
+    {
+      "path": "registry/style/component/file.tsx",
+      "type": "registry:component"
+    }
+  ],
+  "categories": ["table", "data", "dashboard"]
+}
+```
+
+### Component Metadata (for filtering/sorting)
+```typescript
+// In column definitions
+meta: {
+  label: "Column Label",
+  variant: "text" | "number" | "date" | "select" | "multiSelect" | "boolean",
+  placeholder: "Placeholder text",
+  options: [{ label: "Label", value: "value" }],
+  unit: "$" // For number inputs
+}
+```
+
+## Import Patterns
+
+### Registry Components
+- Always use `@/registry/[STYLE]/[COMPONENT]` paths in registry files
+- Use `@/components/` paths in src files
+- Utilities: `@/lib/utils`
+
+### Example Import Structure
+```typescript
+// In registry files
+import { Button } from "@/registry/new-york/ui/button"
+import { DataTable } from "@/registry/new-york/data-table/data-table"
+
+// In src files  
+import { Button } from "@/components/ui/button"
+import { DataTable } from "@/components/data-table/data-table"
+```
+
+## Data Table Component Architecture
+
+### Core Components
+- `data-table.tsx` - Main table component using TanStack Table
+- `data-table-toolbar.tsx` - Contains sort/filter/view controls
+- `data-table-pagination.tsx` - Pagination controls
+- `data-table-column-header.tsx` - Sortable column headers
+
+### Advanced Features
+- `data-table-filter.tsx` - Complex filtering with drag/drop
+- `data-table-sort.tsx` - Multi-column sorting with drag/drop  
+- `data-table-view-options.tsx` - Column visibility controls
+- `input-number.tsx` - Number input with increment/decrement
+
+### Filter System
+```typescript
+// Filter operators by type
+textOperators: ["iLike", "notILike", "eq", "ne", "isEmpty", "isNotEmpty"]
+numericOperators: ["eq", "ne", "lt", "gt", "isBetween", "isEmpty", "isNotEmpty"]
+dateOperators: ["eq", "ne", "lt", "gt", "isBetween", "isEmpty", "isNotEmpty"]
+selectOperators: ["eq", "ne", "isEmpty", "isNotEmpty"]
+multiSelectOperators: ["inArray", "notInArray", "isEmpty", "isNotEmpty"]
+booleanOperators: ["eq", "ne"]
+```
+
+## Development Workflow
+
+### Adding New Components
+
+1. **Create in registry/**: Place component in appropriate `registry/[STYLE]/` directory
+2. **Mirror in src/**: Create corresponding file in `src/components/`
+3. **Update registry.json**: Add item definition with proper dependencies
+4. **Build**: Run `npm run registry:build` to generate JSON
+
+### Registry Build Process
+```bash
+npm run registry:build  # Generates public/r/[name].json files
+```
+
+### File Serving
+- Development: `http://localhost:3000/r/[name].json`
+- Production: `https://your-domain.com/r/[name].json`
+
+## Dependencies Management
+
+### Package Dependencies
+- List npm packages in `dependencies` array
+- Use `@version` syntax for specific versions: `"zod@^3.20.0"`
+
+### Registry Dependencies  
+- Reference shadcn/ui components by name: `["button", "input"]`
+- Reference external registries by URL: `["https://example.com/r/component.json"]`
+
+### Required Dependencies for Data Table
+```json
+{
+  "dependencies": [
+    "@tanstack/react-table",
+    "@dnd-kit/core",
+    "@dnd-kit/modifiers", 
+    "@dnd-kit/sortable",
+    "@dnd-kit/utilities",
+    "react-aria-components",
+    "nanoid"
+  ],
+  "registryDependencies": [
+    "button", "checkbox", "dropdown-menu", "input", 
+    "select", "table", "calendar", "popover", 
+    "command", "badge", "separator"
+  ]
+}
+```
+
+## Installation & Usage
+
+### Installing Components
+```bash
+# Install specific component
+npx shadcn@latest add https://your-registry.com/r/component-name.json
+
+# Install from local development
+npx shadcn@latest add http://localhost:3000/r/component-name.json
+```
+
+### Usage Example
+```typescript
+import { DataTable } from "@/components/data-table/data-table"
+import { columns } from "./columns"
+
+export default function PaymentsPage() {
+  const data = await getData()
+  return <DataTable columns={columns} data={data} />
+}
+```
+
+## Best Practices
+
+### Component Design
+- Keep components self-contained with clear interfaces
+- Use TypeScript for type safety
+- Include proper error handling and loading states
+- Follow shadcn/ui design patterns
+
+### Registry Items
+- Use descriptive names and titles
+- Include comprehensive descriptions
+- Specify all dependencies accurately
+- Organize files logically within component folders
+
+### Documentation
+- Include usage examples in component comments
+- Document complex prop interfaces
+- Provide setup instructions for external dependencies
+
+### Testing Integration
+- Ensure components work with different data shapes
+- Test with various shadcn/ui themes
+- Verify CLI installation process
+
+## Integration with v0
+
+Components are automatically compatible with "Open in v0" via:
+```
+https://v0.dev/chat/api/open?url=https://your-registry.com/r/component.json
+```
+
+Note: v0 doesn't support `cssVars` and `tailwind` properties in registry items.
+
+## Common Patterns
+
+### Column Definition with Filtering
+```typescript
+{
+  accessorKey: "status",
+  header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
+  meta: {
+    label: "Status",
+    variant: "select",
+    options: [
+      { label: "Pending", value: "pending" },
+      { label: "Success", value: "success" }
+    ]
+  },
+  enableColumnFilter: true,
+  filterFn: customFilterFn,
+}
+```
+
+### Custom Filter Function
+```typescript
+function customFilterFn(row, columnId, filterValue) {
+  const { operator, value, variant } = filterValue;
+  const cellValue = row.getValue(columnId);
+  
+  switch (operator) {
+    case "eq": return cellValue === value;
+    case "iLike": return cellValue.toLowerCase().includes(value.toLowerCase());
+    // ... other operators
+  }
+}
+```
+
+This registry system provides a powerful way to distribute and reuse complex React components while maintaining compatibility with the broader shadcn/ui ecosystem.

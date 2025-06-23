@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     siteName: "Shadcn / Supabase Table",
     images: [
       {
-        url: "/og-image.png", // This should be a 1200x630px image in your public folder
+        url: "/og-image.png",
         width: 1550,
         height: 1318,
         alt: "Shadcn / Supabase Table",
