@@ -37,12 +37,14 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   initialState?: Partial<DataTableState>
+  pageCount?: number
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   initialState,
+  pageCount,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter()
   const pathname = usePathname()
@@ -90,6 +92,7 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+    pageCount: pageCount ?? -1,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
@@ -101,6 +104,9 @@ export function DataTable<TData, TValue>({
     onPaginationChange: setPagination,
     onColumnOrderChange: setColumnOrder,
     enableMultiSort: true,
+    manualPagination: true,
+    manualFiltering: true,
+    manualSorting: true,
     state: {
       sorting,
       columnFilters,

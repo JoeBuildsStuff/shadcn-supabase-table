@@ -1,4 +1,4 @@
-import DataTableExampleContacts from "@/components/data-table-example-contacts/data-table-example-contacts";
+import DataTableExampleContacts from "@/app/contacts/_components/contacts-table";
 
 export default async function DataTableExampleContactsPage({
   searchParams,
@@ -10,9 +10,9 @@ export default async function DataTableExampleContactsPage({
   return (
     <main className="px-3 py-10 w-full max-w-5xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Data Table Example</h1>
+        <h1 className="text-3xl font-bold">Contacts Table</h1>
         <p className="text-muted-foreground">
-          A complete data table with sorting, filtering, pagination, and URL state management.
+          A complete contacts table with sorting, filtering, pagination, and URL state management.
         </p>
       </div>
       <DataTableExampleContacts searchParams={params} />

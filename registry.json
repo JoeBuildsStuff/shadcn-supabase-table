@@ -4,98 +4,10 @@
   "homepage": "https://shadcn-supabase-table.vercel.app",
   "items": [
     {
-      "name": "data-table-payments",
-      "type": "registry:block",
-      "title": "Payments Data Table",
-      "description": "A complete payments data table with sorting, filtering, pagination, and row selection. Includes column management and action menus.",
-      "dependencies": [
-        "@tanstack/react-table",
-        "@dnd-kit/core",
-        "@dnd-kit/modifiers",
-        "@dnd-kit/sortable",
-        "@dnd-kit/utilities",
-        "react-aria-components",
-        "nanoid"
-      ],
-      "registryDependencies": [
-        "button",
-        "checkbox", 
-        "dropdown-menu",
-        "input",
-        "select",
-        "table",
-        "calendar",
-        "popover",
-        "command",
-        "badge",
-        "separator"
-      ],
-      "files": [
-        {
-          "path": "registry/data-table/lib/data-table.ts",
-          "type": "registry:lib"
-        },
-        {
-          "path": "registry/data-table/components/ui/input-number.tsx",
-          "type": "registry:ui"
-        },
-        {
-          "path": "registry/data-table/components/data-table/data-table-column-header.tsx",
-          "type": "registry:component"
-        },
-        {
-          "path": "registry/data-table/components/data-table/data-table-filter.tsx",
-          "type": "registry:component"
-        },
-        {
-          "path": "registry/data-table/components/data-table/data-table-filter-item.tsx",
-          "type": "registry:component"
-        },
-        {
-          "path": "registry/data-table/components/data-table/data-table-pagination.tsx",
-          "type": "registry:component"
-        },
-        {
-          "path": "registry/data-table/components/data-table/data-table-sort-item.tsx",
-          "type": "registry:component"
-        },
-        {
-          "path": "registry/data-table/components/data-table/data-table-sort.tsx",
-          "type": "registry:component"
-        },
-        {
-          "path": "registry/data-table/components/data-table/data-table-toolbar.tsx",
-          "type": "registry:component"
-        },
-        {
-          "path": "registry/data-table/components/data-table/data-table-view-options.tsx",
-          "type": "registry:component"
-        },
-        {
-          "path": "registry/data-table/components/data-table/data-table.tsx",
-          "type": "registry:component"
-        },
-        {
-          "path": "registry/data-table/components/data-table-example-payments/data-table-example-payments.tsx",
-          "type": "registry:component"
-        },
-        {
-          "path": "registry/data-table/components/data-table-example-payments/columns.tsx",
-          "type": "registry:component"
-        },
-        {
-          "path": "registry/data-table/pages/data-table-example-payments/page.tsx",
-          "type": "registry:page",
-          "target": "app/data-table-example-payments/page.tsx"
-        }
-      ],
-      "categories": ["table", "data", "dashboard"]
-    },
-    {
       "name": "data-table-contacts",
       "type": "registry:block",
       "title": "Contacts Data Table",
-      "description": "A complete contacts data table with sorting, filtering, pagination, and row selection. Includes column management and action menus. Integrated with Supabase for data fetching.",
+      "description": "A complete contacts data table with server-side sorting, filtering, and pagination. Includes column management, action menus, and Supabase integration with optimized queries.",
       "dependencies": [
         "@tanstack/react-table",
         "@dnd-kit/core",
@@ -186,20 +98,37 @@
           "type": "registry:component"
         },
         {
-          "path": "registry/data-table/components/data-table-example-contacts/data-table-example-contacts.tsx",
-          "type": "registry:component"
-        },
-        {
-          "path": "registry/data-table/components/data-table-example-contacts/columns.tsx",
-          "type": "registry:component"
-        },
-        {
-          "path": "registry/data-table/pages/data-table-example-contacts/page.tsx",
+          "path": "registry/data-table/pages/contacts/page.tsx",
           "type": "registry:page",
-          "target": "app/data-table-example-contacts/page.tsx"
+          "target": "app/contacts/page.tsx"
+        },
+        {
+          "path": "registry/data-table/pages/contacts/_components/contacts-table.tsx",
+          "type": "registry:component",
+          "target": "app/contacts/_components/contacts-table.tsx"
+        },
+        {
+          "path": "registry/data-table/pages/contacts/_components/contacts-columns.tsx",
+          "type": "registry:component",
+          "target": "app/contacts/_components/contacts-columns.tsx"
+        },
+        {
+          "path": "registry/data-table/pages/contacts/_lib/queries.ts",
+          "type": "registry:lib",
+          "target": "app/contacts/_lib/queries.ts"
+        },
+        {
+          "path": "registry/data-table/pages/contacts/_lib/validations.ts",
+          "type": "registry:lib",
+          "target": "app/contacts/_lib/validations.ts"
+        },
+        {
+          "path": "registry/data-table/pages/contacts/_lib/actions.ts",
+          "type": "registry:lib",
+          "target": "app/contacts/_lib/actions.ts"
         }
       ],
-      "docs": "Setup Instructions:\\n\\n1. Copy `.env.example` to `.env.local` and add your Supabase project URL and anon key.\\n2. Ensure your Supabase project has the required database tables and RLS policies.\\n3. Create a `middleware.ts` file in your `src` directory and add the following code to enable authentication:\\n\\n```typescript\\nimport { type NextRequest } from 'next/server'\\nimport { updateSession } from '@/lib/supabase/middleware'\\n\\nexport async function middleware(request: NextRequest) {\\n  return await updateSession(request)\\n}\\n\\nexport const config = {\\n  matcher: [\\n    /*\\n     * Match all request paths except for the ones starting with:\\n     * - _next/static (static files)\\n     * - _next/image (image optimization files)\\n     * - favicon.ico (favicon file)\\n     * Feel free to modify this pattern to include more paths.\\n     */\\n    '/((?!_next/static|_next/image|favicon.ico|.*\\\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',\\n  ],\\n}\\n```",
+      "docs": "Setup Instructions:\\n\\n1. Copy `.env.example` to `.env.local` and add your Supabase project URL and anon key.\\n2. Ensure your Supabase project has the required database tables and RLS policies.\\n3. Create a `middleware.ts` file in your `src` directory and add the following code to enable authentication:\\n\\n```typescript\\nimport { type NextRequest } from 'next/server'\\nimport { updateSession } from '@/lib/supabase/middleware'\\n\\nexport async function middleware(request: NextRequest) {\\n  return await updateSession(request)\\n}\\n\\nexport const config = {\\n  matcher: [\\n    /*\\n     * Match all request paths except for the ones starting with:\\n     * - _next/static (static files)\\n     * - _next/image (image optimization files)\\n     * - favicon.ico (favicon file)\\n     * Feel free to modify this pattern to include more paths.\\n     */\\n    '/((?!_next/static|_next/image|favicon.ico|.*\\\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',\\n  ],\\n}\\n```\\n\\nThis refactored version includes:\\n- Server-side data fetching with optimized Supabase queries\\n- Proper separation of concerns with _lib directory structure\\n- Type-safe validations and query functions\\n- Enhanced performance through server-side filtering, sorting, and pagination",
       "categories": [
         "table",
         "data",

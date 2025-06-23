@@ -12,7 +12,7 @@ export default function MainHeader() {
       <Logo />
       <div className="flex items-center gap-2">
         <ButtonCopyNpxInstallCmd url="https://shadcn-supabase-table.vercel.app/r/data-table-contacts.json" />  
-        <ButtonOpenInV0 url="https://shadcn-supabase-table.vercel.app/r/data-table-payments.json" />  
+        <ButtonOpenInV0 url="https://shadcn-supabase-table.vercel.app/r/data-table-contacts.json" />  
         <ButtonOpenGithubRepo />
         <ModeToggle />
       </div>

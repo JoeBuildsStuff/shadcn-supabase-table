@@ -6,9 +6,8 @@ import { MoreHorizontal, Star } from "lucide-react"
 import { ColumnDef } from "@tanstack/react-table"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
-import { DataTableColumnHeader } from "../data-table/data-table-column-header"
-import { Contacts } from "./data-table-example-contacts"
-import { customFilterFn } from "@/lib/data-table"
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
+import { Contacts } from "../_lib/validations"
 
 export const columns: ColumnDef<Contacts>[] = [
   {
@@ -51,7 +50,6 @@ export const columns: ColumnDef<Contacts>[] = [
       placeholder: "Search names...",
     },
     enableColumnFilter: true,
-    filterFn: customFilterFn,
   },
   {
     accessorKey: "primary_email",
@@ -66,7 +64,6 @@ export const columns: ColumnDef<Contacts>[] = [
       placeholder: "Search emails...",
     },
     enableColumnFilter: true,
-    filterFn: customFilterFn,
   },
   {
     accessorKey: "primary_phone",
@@ -86,7 +83,6 @@ export const columns: ColumnDef<Contacts>[] = [
       placeholder: "Search phone numbers...",
     },
     enableColumnFilter: true,
-    filterFn: customFilterFn,
   },
   {
     accessorKey: "company",
@@ -101,7 +97,6 @@ export const columns: ColumnDef<Contacts>[] = [
       placeholder: "Search companies...",
     },
     enableColumnFilter: true,
-    filterFn: customFilterFn,
   },
   {
     accessorKey: "job_title",
@@ -116,7 +111,6 @@ export const columns: ColumnDef<Contacts>[] = [
       placeholder: "Search job titles...",
     },
     enableColumnFilter: true,
-    filterFn: customFilterFn,
   },
   {
     accessorKey: "tags",
@@ -164,7 +158,6 @@ export const columns: ColumnDef<Contacts>[] = [
       ],
     },
     enableColumnFilter: true,
-    filterFn: customFilterFn,
   },
   {
     accessorKey: "created_at",
@@ -187,7 +180,6 @@ export const columns: ColumnDef<Contacts>[] = [
       variant: "date",
     },
     enableColumnFilter: true,
-    filterFn: customFilterFn,
   },
   {
     accessorKey: "updated_at",
@@ -210,7 +202,6 @@ export const columns: ColumnDef<Contacts>[] = [
       variant: "date",
     },
     enableColumnFilter: true,
-    filterFn: customFilterFn,
   },
   {
     accessorKey: "is_favorite",
@@ -232,7 +223,6 @@ export const columns: ColumnDef<Contacts>[] = [
       variant: "boolean",
     },
     enableColumnFilter: true,
-    filterFn: customFilterFn,
   },
   {
     id: "actions",
