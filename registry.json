@@ -109,7 +109,7 @@
       ],
       "registryDependencies": [
         "button",
-        "checkbox", 
+        "checkbox",
         "dropdown-menu",
         "input",
         "select",
@@ -122,20 +122,28 @@
       ],
       "files": [
         {
+          "path": "registry/data-table/.env.example",
+          "type": "registry:file",
+          "target": ".env.example"
+        },
+        {
           "path": "registry/data-table/lib/data-table.ts",
           "type": "registry:lib"
         },
         {
           "path": "registry/data-table/lib/supabase/client.ts",
-          "type": "registry:lib"
+          "type": "registry:file",
+          "target": "lib/supabase/client.ts"
         },
         {
           "path": "registry/data-table/lib/supabase/server.ts",
-          "type": "registry:lib"
+          "type": "registry:file",
+          "target": "lib/supabase/server.ts"
         },
         {
           "path": "registry/data-table/lib/supabase/middleware.ts",
-          "type": "registry:lib"
+          "type": "registry:file",
+          "target": "lib/supabase/middleware.ts"
         },
         {
           "path": "registry/data-table/components/ui/input-number.tsx",
@@ -191,7 +199,12 @@
           "target": "app/data-table-example-contacts/page.tsx"
         }
       ],
-      "categories": ["table", "data", "dashboard"]
+      "docs": "Setup Instructions:\\n\\n1. Copy `.env.example` to `.env.local` and add your Supabase project URL and anon key.\\n2. Ensure your Supabase project has the required database tables and RLS policies.\\n3. Create a `middleware.ts` file in your `src` directory and add the following code to enable authentication:\\n\\n```typescript\\nimport { type NextRequest } from 'next/server'\\nimport { updateSession } from '@/lib/supabase/middleware'\\n\\nexport async function middleware(request: NextRequest) {\\n  return await updateSession(request)\\n}\\n\\nexport const config = {\\n  matcher: [\\n    /*\\n     * Match all request paths except for the ones starting with:\\n     * - _next/static (static files)\\n     * - _next/image (image optimization files)\\n     * - favicon.ico (favicon file)\\n     * Feel free to modify this pattern to include more paths.\\n     */\\n    '/((?!_next/static|_next/image|favicon.ico|.*\\\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',\\n  ],\\n}\\n```",
+      "categories": [
+        "table",
+        "data",
+        "dashboard"
+      ]
     }
   ]
 }

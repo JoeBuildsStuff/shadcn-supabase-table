@@ -2,8 +2,8 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "data-table-contacts",
   "type": "registry:block",
-  "title": "Contacts Data Table",
-  "description": "A complete contacts data table with sorting, filtering, pagination, and row selection. Includes column management and action menus. Integrated with Supabase for data fetching.",
+  "title": "Contacts Data Table with Supabase",
+  "description": "A complete contacts data table with sorting, filtering, pagination, and row selection. Includes column management and action menus. Integrated with Supabase for real-time data fetching and management.",
   "dependencies": [
     "@tanstack/react-table",
     "@dnd-kit/core",
@@ -37,17 +37,44 @@
     {
       "path": "registry/data-table/lib/supabase/client.ts",
       "content": "import { createBrowserClient } from '@supabase/ssr'\n\nexport function createClient() {\n  return createBrowserClient(\n    process.env.NEXT_PUBLIC_SUPABASE_URL!,\n    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!\n  )\n} ",
-      "type": "registry:lib"
+      "type": "registry:file",
+      "target": "lib/supabase/client.ts"
     },
     {
       "path": "registry/data-table/lib/supabase/server.ts",
       "content": "import { createServerClient } from '@supabase/ssr'\nimport { cookies } from 'next/headers'\n\nexport async function createClient() {\n  const cookieStore = await cookies()\n\n  return createServerClient(\n    process.env.NEXT_PUBLIC_SUPABASE_URL!,\n    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,\n    {\n      cookies: {\n        getAll() {\n          return cookieStore.getAll()\n        },\n        setAll(cookiesToSet) {\n          try {\n            cookiesToSet.forEach(({ name, value, options }) =>\n              cookieStore.set(name, value, options)\n            )\n          } catch {\n            // The `setAll` method was called from a Server Component.\n            // This can be ignored if you have middleware refreshing\n            // user sessions.\n          }\n        },\n      },\n    }\n  )\n} ",
-      "type": "registry:lib"
+      "type": "registry:file",
+      "target": "lib/supabase/server.ts"
     },
     {
       "path": "registry/data-table/lib/supabase/middleware.ts",
       "content": "import { createServerClient } from '@supabase/ssr'\nimport { NextResponse, type NextRequest } from 'next/server'\n\nexport async function updateSession(request: NextRequest) {\n  let supabaseResponse = NextResponse.next({\n    request,\n  })\n\n  const supabase = createServerClient(\n    process.env.NEXT_PUBLIC_SUPABASE_URL!,\n    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,\n    {\n      cookies: {\n        getAll() {\n          return request.cookies.getAll()\n        },\n        setAll(cookiesToSet) {\n          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))\n          supabaseResponse = NextResponse.next({\n            request,\n          })\n          cookiesToSet.forEach(({ name, value, options }) =>\n            supabaseResponse.cookies.set(name, value, options)\n          )\n        },\n      },\n    }\n  )\n\n  // Do not run code between createServerClient and\n  // supabase.auth.getUser(). A simple mistake could make it very hard to debug\n  // issues with users being randomly logged out.\n\n  // IMPORTANT: DO NOT REMOVE auth.getUser()\n\n  const {\n    data: { user },\n  } = await supabase.auth.getUser()\n\n  if (\n    !user &&\n    !request.nextUrl.pathname.startsWith('/login') &&\n    !request.nextUrl.pathname.startsWith('/auth')\n  ) {\n    // no user, potentially respond by redirecting the user to the login page\n    const url = request.nextUrl.clone()\n    url.pathname = '/auth/login'\n    return NextResponse.redirect(url)\n  }\n\n  // IMPORTANT: You *must* return the supabaseResponse object as it is.\n  // If you're creating a new response object with NextResponse.next() make sure to:\n  // 1. Pass the request in it, like so:\n  //    const myNewResponse = NextResponse.next({ request })\n  // 2. Copy over the cookies, like so:\n  //    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())\n  // 3. Change the myNewResponse object to fit your needs, but avoid changing\n  //    the cookies!\n  // 4. Finally:\n  //    return myNewResponse\n  // If this is not done, you may be causing the browser and server to go out\n  // of sync and terminate the user's session prematurely!\n\n  return supabaseResponse\n} ",
-      "type": "registry:lib"
+      "type": "registry:file",
+      "target": "lib/supabase/middleware.ts"
+    },
+    {
+      "path": "registry/data-table/.env.example",
+      "content": "# Supabase Configuration\n# Get these from your Supabase project settings > API\nNEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url\nNEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key\n\n# Example:\n# NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co\n# NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\n",
+      "type": "registry:file",
+      "target": ".env.example"
+    },
+    {
+      "path": "registry/data-table/middleware.ts",
+      "content": "import { type NextRequest } from 'next/server'\nimport { updateSession } from '@/lib/supabase/middleware'\n\nexport async function middleware(request: NextRequest) {\n  return await updateSession(request)\n}\n\nexport const config = {\n  matcher: [\n    /*\n     * Match all request paths except for the ones starting with:\n     * - _next/static (static files)\n     * - _next/image (image optimization files)\n     * - favicon.ico (favicon file)\n     * Feel free to modify this pattern to include more paths.\n     */\n    '/((?!_next/static|_next/image|favicon.ico|.*\\\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',\n  ],\n} ",
+      "type": "registry:file",
+      "target": "middleware.ts"
+    },
+    {
+      "path": "registry/data-table/database.sql",
+      "content": "-- Create the contacts table for the data table example\nCREATE TABLE IF NOT EXISTS registry_contacts (\n    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,\n    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),\n    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),\n    first_name TEXT,\n    last_name TEXT,\n    display_name TEXT,\n    nickname TEXT,\n    primary_email TEXT,\n    primary_phone TEXT,\n    company TEXT,\n    job_title TEXT,\n    birthday DATE,\n    notes TEXT,\n    is_favorite BOOLEAN DEFAULT FALSE,\n    tags TEXT[]\n);\n\n-- Create an index on commonly searched fields\nCREATE INDEX IF NOT EXISTS idx_registry_contacts_name ON registry_contacts(first_name, last_name);\nCREATE INDEX IF NOT EXISTS idx_registry_contacts_email ON registry_contacts(primary_email);\nCREATE INDEX IF NOT EXISTS idx_registry_contacts_company ON registry_contacts(company);\n\n-- Insert sample data\nINSERT INTO registry_contacts (\n    first_name, last_name, display_name, nickname, primary_email, primary_phone, \n    company, job_title, birthday, notes, is_favorite, tags\n) VALUES \n    ('Alice', 'Johnson', 'Alice Johnson', 'Ally', 'alice.johnson@acme.com', '2125551200', 'Acme Inc.', 'Software Engineer', '1990-03-12', 'Loves hiking and cats.', true, ARRAY['engineering', 'hiking']),\n    ('Brian', 'Wong', 'Brian Wong', 'Bri', 'brian.wong@starventures.io', '3105559876', 'Star Ventures', 'Product Manager', '1987-08-19', 'Interested in AI and blockchain.', false, ARRAY['product', 'ai']),\n    ('Camila', 'Santos', 'Camila Santos', null, 'camila.santos@fintech.co', '6465553344', 'FinTech Co.', 'Data Analyst', '1992-02-05', 'Speaks fluent Spanish and French.', true, ARRAY['analytics']),\n    ('Daniel', 'Lee', 'Daniel Lee', 'Dan', 'dan.lee@healthsolutions.com', '4085557766', 'Health Solutions', 'Operations Manager', '1985-09-17', 'Enjoys tennis and weekend trips.', false, ARRAY['ops']),\n    ('Elena', 'Martinez', 'Elena Martinez', null, 'elena.martinez@globalco.com', '3125550101', 'GlobalCo', 'Marketing Director', '1979-06-23', 'Responsible for global brand strategy.', true, ARRAY['marketing'])\nON CONFLICT (id) DO NOTHING;\n\n-- Enable Row Level Security (optional - uncomment if needed)\n-- ALTER TABLE registry_contacts ENABLE ROW LEVEL SECURITY;\n\n-- Create a policy that allows all operations (adjust as needed for your use case)\n-- CREATE POLICY \"Allow all operations on registry_contacts\" ON registry_contacts FOR ALL USING (true); ",
+      "type": "registry:file",
+      "target": "database.sql"
+    },
+    {
+      "path": "registry/data-table/README.md",
+      "content": "# Supabase Data Table Setup\n\nThis data table component integrates with Supabase for real-time data fetching and management.\n\n## Prerequisites\n\n- A Supabase project\n- Next.js 13+ with App Router\n- Node.js 18+\n\n## Setup Instructions\n\n### 1. Environment Variables\n\nCopy the `.env.example` file to `.env.local` in your project root:\n\n```bash\ncp .env.example .env.local\n```\n\nThen update `.env.local` with your Supabase credentials:\n\n```env\nNEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co\nNEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key\n```\n\nGet these values from your Supabase project dashboard:\n1. Go to your Supabase project\n2. Navigate to Settings > API\n3. Copy the Project URL and anon/public key\n\n### 2. Database Setup\n\nRun the SQL commands in `database.sql` in your Supabase SQL editor:\n\n1. Go to your Supabase project dashboard\n2. Navigate to SQL Editor\n3. Copy and paste the contents of `database.sql`\n4. Run the query to create the `registry_contacts` table and sample data\n\n### 3. Middleware Setup\n\nIf you don't already have a `middleware.ts` file in your project root, copy the provided `middleware.ts` file there.\n\nIf you already have middleware, merge the Supabase session handling with your existing middleware:\n\n```typescript\nimport { updateSession } from '@/lib/supabase/middleware'\n\nexport async function middleware(request: NextRequest) {\n  // Your existing middleware logic...\n  \n  // Add Supabase session handling\n  return await updateSession(request)\n}\n```\n\n### 4. TypeScript Configuration\n\nMake sure your `tsconfig.json` includes the lib directory:\n\n```json\n{\n  \"compilerOptions\": {\n    \"baseUrl\": \".\",\n    \"paths\": {\n      \"@/*\": [\"./src/*\"]\n    }\n  }\n}\n```\n\n## Usage\n\nAfter setup, you can use the data table component:\n\n```tsx\nimport { DataTableExampleContacts } from '@/components/data-table-example-contacts/data-table-example-contacts'\n\nexport default function ContactsPage() {\n  return (\n    <div className=\"container mx-auto py-10\">\n      <DataTableExampleContacts />\n    </div>\n  )\n}\n```\n\n## Database Schema\n\nThe contacts table includes the following fields:\n\n- `id` (UUID, Primary Key)\n- `created_at` (Timestamp)\n- `updated_at` (Timestamp)\n- `first_name` (Text)\n- `last_name` (Text)\n- `display_name` (Text)\n- `nickname` (Text, nullable)\n- `primary_email` (Text)\n- `primary_phone` (Text)\n- `company` (Text)\n- `job_title` (Text)\n- `birthday` (Date)\n- `notes` (Text)\n- `is_favorite` (Boolean)\n- `tags` (Text Array)\n\n## Customization\n\nYou can customize the data table by:\n\n1. Modifying the `Contacts` type in the component\n2. Updating the columns configuration\n3. Adding custom filters and sorting options\n4. Extending the database schema as needed\n\n## Troubleshooting\n\n### Common Issues\n\n1. **Environment variables not loading**: Make sure your `.env.local` file is in the project root and restart your development server.\n\n2. **Database connection errors**: Verify your Supabase URL and anon key are correct.\n\n3. **Table not found**: Ensure you've run the database setup SQL commands.\n\n4. **Middleware conflicts**: If you have existing middleware, make sure to properly merge the Supabase session handling.\n\n### Getting Help\n\n- [Supabase Documentation](https://supabase.com/docs)\n- [Next.js App Router Guide](https://nextjs.org/docs/app)\n- [shadcn/ui Documentation](https://ui.shadcn.com) ",
+      "type": "registry:file",
+      "target": "README-supabase-setup.md"
     },
     {
       "path": "registry/data-table/components/ui/input-number.tsx",
@@ -116,6 +143,7 @@
       "target": "app/data-table-example-contacts/page.tsx"
     }
   ],
+  "docs": "Setup Instructions:\n\n1. Copy .env.example to .env.local and add your Supabase credentials\n2. Run the database.sql script in your Supabase SQL editor to create the contacts table\n3. Copy middleware.ts to your project root (or merge with existing middleware)\n4. Ensure your tsconfig.json paths are configured correctly\n\nSee README.md for detailed setup instructions and troubleshooting.",
   "categories": [
     "table",
     "data",
