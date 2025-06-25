@@ -1,13 +1,12 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, Star } from "lucide-react"
+import { Star } from "lucide-react"
 import { ColumnDef } from "@tanstack/react-table"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { Contacts } from "../_lib/validations"
+import ContactsEditRow from "./contacts-edit-row"
 
 export const columns: ColumnDef<Contacts>[] = [
   {
@@ -31,6 +30,15 @@ export const columns: ColumnDef<Contacts>[] = [
     ),
     enableSorting: false,
     enableHiding: false,
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const contact = row.original
+      return (
+        <ContactsEditRow contact={contact} />
+      )
+    },
   },
   {
     accessorKey: "display_name",
@@ -223,47 +231,5 @@ export const columns: ColumnDef<Contacts>[] = [
       variant: "boolean",
     },
     enableColumnFilter: true,
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      const contact = row.original
-      return (
-        <div className="flex justify-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(contact.id)}
-              >
-                Copy contact ID
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(contact.primary_email || "")}
-              >
-                Copy email
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Edit contact</DropdownMenuItem>
-              <DropdownMenuItem>View details</DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  // Toggle favorite logic would go here
-                  console.log("Toggle favorite for", contact.display_name)
-                }}
-              >
-                {contact.is_favorite ? "Remove from favorites" : "Add to favorites"}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      )
-    },
   },
 ]

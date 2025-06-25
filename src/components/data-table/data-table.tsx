@@ -38,6 +38,11 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   initialState?: Partial<DataTableState>
   pageCount?: number
+  AddRowFormComponent?: React.ComponentType<{
+    onSuccess?: () => void
+    onCancel?: () => void
+  }>
+  deleteAction?: (ids: string[]) => Promise<{ success: boolean; error?: string; deletedCount?: number }>
 }
 
 export function DataTable<TData, TValue>({
@@ -45,6 +50,8 @@ export function DataTable<TData, TValue>({
   data,
   initialState,
   pageCount,
+  AddRowFormComponent,
+  deleteAction,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter()
   const pathname = usePathname()
@@ -120,7 +127,7 @@ export function DataTable<TData, TValue>({
   return (
     <div>
         <div className="pb-2">
-            <DataTableToolbar table={table} />
+            <DataTableToolbar table={table} AddRowFormComponent={AddRowFormComponent} deleteAction={deleteAction} />
         </div>
 
         <div className="rounded-md border">
