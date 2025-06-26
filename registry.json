@@ -103,6 +103,10 @@
           "type": "registry:component"
         },
         {
+          "path": "registry/data-table/components/data-table/data-table-delete-rows.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "registry/data-table/pages/contacts/page.tsx",
           "type": "registry:page",
           "target": "app/contacts/page.tsx"
