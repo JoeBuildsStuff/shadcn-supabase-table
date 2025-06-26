@@ -30,7 +30,12 @@
         "popover",
         "command",
         "badge",
-        "separator"
+        "separator",
+        "sheet",
+        "alert-dialog",
+        "label",
+        "textarea",
+        "switch"
       ],
       "files": [
         {
@@ -99,11 +104,19 @@
           "type": "registry:component"
         },
         {
-          "path": "registry/data-table/components/data-table/data-table-add-row.tsx",
+          "path": "registry/data-table/components/data-table/data-table-row-add.tsx",
           "type": "registry:component"
         },
         {
-          "path": "registry/data-table/components/data-table/data-table-delete-rows.tsx",
+          "path": "registry/data-table/components/data-table/data-table-row-delete.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/data-table/components/data-table/data-table-row-edit.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/data-table/components/data-table/data-table-row-form.tsx",
           "type": "registry:component"
         },
         {
@@ -122,16 +135,6 @@
           "target": "app/contacts/_components/contacts-columns.tsx"
         },
         {
-          "path": "registry/data-table/pages/contacts/_components/contact-form.tsx",
-          "type": "registry:component",
-          "target": "app/contacts/_components/contact-form.tsx"
-        },
-        {
-          "path": "registry/data-table/pages/contacts/_components/contacts-edit-row.tsx",
-          "type": "registry:component",
-          "target": "app/contacts/_components/contacts-edit-row.tsx"
-        },
-        {
           "path": "registry/data-table/pages/contacts/_lib/queries.ts",
           "type": "registry:lib",
           "target": "app/contacts/_lib/queries.ts"
@@ -147,7 +150,7 @@
           "target": "app/contacts/_lib/actions.ts"
         }
       ],
-      "docs": "Setup Instructions:\\n\\n1. Copy `.env.example` to `.env.local` and add your Supabase project URL and anon key.\\n2. Ensure your Supabase project has the required database tables and RLS policies.\\n3. Create a `middleware.ts` file in your `src` directory and add the following code to enable authentication:\\n\\n```typescript\\nimport { type NextRequest } from 'next/server'\\nimport { updateSession } from '@/lib/supabase/middleware'\\n\\nexport async function middleware(request: NextRequest) {\\n  return await updateSession(request)\\n}\\n\\nexport const config = {\\n  matcher: [\\n    /*\\n     * Match all request paths except for the ones starting with:\\n     * - _next/static (static files)\\n     * - _next/image (image optimization files)\\n     * - favicon.ico (favicon file)\\n     * Feel free to modify this pattern to include more paths.\\n     */\\n    '/((?!_next/static|_next/image|favicon.ico|.*\\\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',\\n  ],\\n}\\n```\\n\\nThis refactored version includes:\\n- Server-side data fetching with optimized Supabase queries\\n- Proper separation of concerns with _lib directory structure\\n- Type-safe validations and query functions\\n- Enhanced performance through server-side filtering, sorting, and pagination",
+      "docs": "Setup Instructions:\\n\\n1. Copy `.env.example` to `.env.local` and add your Supabase project URL and anon key.\\n2. Ensure your Supabase project has the required database tables and RLS policies.\\n3. Create a `middleware.ts` file in your `src` directory and add the following code to enable authentication:\\n\\n```typescript\\nimport { type NextRequest } from 'next/server'\\nimport { updateSession } from '@/lib/supabase/middleware'\\n\\nexport async function middleware(request: NextRequest) {\\n  return await updateSession(request)\\n}\\n\\nexport const config = {\\n  matcher: [\\n    /*\\n     * Match all request paths except for the ones starting with:\\n     * - _next/static (static files)\\n     * - _next/image (image optimization files)\\n     * - favicon.ico (favicon file)\\n     * Feel free to modify this pattern to include more paths.\\n     */\\n    '/((?!_next/static|_next/image|favicon.ico|.*\\\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',\\n  ],\\n}\\n```\\n\\nThis refactored version includes:\\n- Server-side data fetching with optimized Supabase queries\\n- Proper separation of concerns with _lib directory structure\\n- Type-safe validations and query functions\\n- Enhanced performance through server-side filtering, sorting, and pagination\\n- Row-level operations (add, edit, delete) with form components\\n- Advanced filtering and sorting with drag-and-drop functionality",
       "categories": [
         "table",
         "data",

@@ -16,17 +16,17 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
-interface DataTableDeleteRowsProps {
+interface DataTableRowDeleteProps {
   selectedRowIds: string[]
   deleteAction: (ids: string[]) => Promise<{ success: boolean; error?: string; deletedCount?: number }>
   onComplete?: () => void
 }
 
-export default function DataTableDeleteRows({ 
+export default function DataTableRowDelete({ 
   selectedRowIds, 
   deleteAction,
   onComplete 
-}: DataTableDeleteRowsProps) {
+}: DataTableRowDeleteProps) {
   const router = useRouter()
   const [isDeleting, setIsDeleting] = useState(false)
   const [open, setOpen] = useState(false)

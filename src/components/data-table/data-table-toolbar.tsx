@@ -4,19 +4,23 @@ import DataTableFilter from "./data-table-filter"
 import DataTableSort from "./data-table-sort"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import DataTableAddRow from "./data-table-add-row"
-import DataTableDeleteRows from "./data-table-delete-rows"
+import DataTableRowDelete from "./data-table-row-delete"
+import DataTableRowAdd from "./data-table-row-add"
+import DataTableRowEdit from "./data-table-row-edit"
 
 interface DataTableToolbarProps<TData> {
     table: Table<TData>
-    AddRowFormComponent?: React.ComponentType<{
-      onSuccess?: () => void
-      onCancel?: () => void
-    }>
     deleteAction?: (ids: string[]) => Promise<{ success: boolean; error?: string; deletedCount?: number }>
+    createAction?: (data: Partial<TData>) => Promise<{ success: boolean; error?: string }>
+    updateAction?: (id: string, data: Partial<TData>) => Promise<{ success: boolean; error?: string }>
   }
 
-export default function DataTableToolbar<TData>({ table, AddRowFormComponent, deleteAction }: DataTableToolbarProps<TData>) {
+export default function DataTableToolbar<TData>({ 
+  table, 
+  deleteAction,
+  createAction,
+  updateAction
+}: DataTableToolbarProps<TData>) {
     
   // Check if there are any active sorts or filters
   const hasActiveSorts = table.getState().sorting.length > 0
@@ -26,6 +30,7 @@ export default function DataTableToolbar<TData>({ table, AddRowFormComponent, de
   // Check if there are selected rows
   const selectedRows = table.getFilteredSelectedRowModel().rows
   const selectedRowIds = selectedRows.map(row => (row.original as { id: string }).id)
+  const selectedRowData = selectedRows.map(row => row.original)
 
   const clearAllFiltersAndSorts = () => {
     table.setSorting([])
@@ -35,18 +40,22 @@ export default function DataTableToolbar<TData>({ table, AddRowFormComponent, de
   return (
     <div className="flex items-center">
       <div className="flex items-center gap-2">
-        {AddRowFormComponent && (
-          <DataTableAddRow 
-            FormComponent={AddRowFormComponent}
-            title="Add New Contact"
-            description="Add a new contact to your list."
-          />
-        )}
+        <DataTableRowAdd 
+          columns={table.getAllColumns().map(col => col.columnDef)}
+          createAction={createAction}
+        />
         {deleteAction && selectedRowIds.length > 0 && (
-          <DataTableDeleteRows
+          <DataTableRowDelete
             selectedRowIds={selectedRowIds}
             deleteAction={deleteAction}
             onComplete={() => table.toggleAllRowsSelected(false)}
+          />
+        )}
+        {selectedRowIds.length > 0 && updateAction && (
+          <DataTableRowEdit
+            columns={table.getAllColumns().map(col => col.columnDef)}
+            selectedRows={selectedRowData}
+            updateAction={updateAction}
           />
         )}
         <DataTableSort table={table} />
