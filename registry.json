@@ -59,7 +59,8 @@
         },
         {
           "path": "registry/data-table/components/ui/input-number.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "components/ui/input-number.tsx"
         },
         {
           "path": "registry/data-table/components/data-table/data-table-column-header.tsx",
@@ -111,6 +112,16 @@
           "path": "registry/data-table/pages/contacts/_components/contacts-columns.tsx",
           "type": "registry:component",
           "target": "app/contacts/_components/contacts-columns.tsx"
+        },
+        {
+          "path": "registry/data-table/pages/contacts/_components/contact-form.tsx",
+          "type": "registry:component",
+          "target": "app/contacts/_components/contact-form.tsx"
+        },
+        {
+          "path": "registry/data-table/pages/contacts/_components/contacts-edit-row.tsx",
+          "type": "registry:component",
+          "target": "app/contacts/_components/contacts-edit-row.tsx"
         },
         {
           "path": "registry/data-table/pages/contacts/_lib/queries.ts",
